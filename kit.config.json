@@ -1,0 +1,17 @@
+{
+  "project": {
+    "name": "inkwell",
+    "chatLanguage": "vi"
+  },
+  "apps": [],
+  "docPaths": {
+    "aiContext": "docs/ai-context",
+    "agents": "AGENTS.md",
+    "agentsConfig": "docs/agents"
+  },
+  "skillPaths": [
+    ".claude/skills"
+  ],
+  "claims": [],
+  "gates": []
+}
