@@ -1,8 +1,8 @@
 # HƯỚNG DẪN SỬ DỤNG — comix.to Downloader (GUI + CLI)
 
-> Bản cập nhật cho repo `inkwell` (branch `feat/comix-downloader`).
-> Tool nằm tại: `comix-downloader\` (root của repo).
-> Bản gốc ở máy cũ: `D:\bato-downloader\src\comix_downloader` — chỉ copy sang, **không sửa code**.
+> Bản cập nhật sau khi đổi tên thư mục: `comix-downloader\` → **`comix_downloader\`** (thành Python package hợp lệ).
+> Tool nằm tại: `comix_downloader\` (root của repo `inkwell`).
+> Bản gốc ở máy cũ: `D:\bato-downloader\src\comix_downloader` — chỉ copy sang, **không sửa code gốc**.
 
 ---
 
@@ -17,42 +17,39 @@ pip install selenium-stealth
 ```
 
 - **Google Chrome** phải có sẵn (tool dùng Chrome thật qua undetected-chromedriver, tự nhận phiên bản).
-- Kiểm tra nhanh import không lỗi:
+- Kiểm tra nhanh:
 
 ```powershell
 cd F:\GitHub_Interesting_Repos\inkwell
-python comix-downloader\cli.py --help
+python -m comix_downloader --help
 ```
 
 ---
 
 ## 2. Vị trí & cách chạy (QUAN TRỌNG)
 
-Layout ở đây là **phẳng** (file .py nằm thẳng trong `comix-downloader\`), KHÔNG phải Python package.
-
-✅ Đúng:
+`comix_downloader\` là **Python package** (có `__init__.py`, tên hợp lệ). Chạy kiểu module từ **repo root** là đường chính thức:
 
 ```powershell
 cd F:\GitHub_Interesting_Repos\inkwell
-python comix-downloader\cli.py <command>     # CLI
-python comix-downloader\gui.py               # GUI
-python comix-downloader\cli.py gui           # GUI (đi qua CLI)
+python -m comix_downloader <command>     # CLI (info | list | download | gui | search)
+python -m comix_downloader gui           # GUI
 ```
 
-hoặc:
+Chạy trực tiếp file vẫn hoạt động một phần (import đầu file có fallback), nhưng **GUI tải chapter sẽ lỗi** vì dòng `from comix_downloader.comix_scraper import ...` trong `gui.py` cần package nằm trên search path — chỉ đúng khi chạy `-m` từ repo root:
 
 ```powershell
-cd F:\GitHub_Interesting_Repos\inkwell\comix-downloader
-python cli.py <command>
-python gui.py
+# KHÔNG dùng cho GUI nếu muốn tính năng tải đầy đủ:
+python comix_downloader\gui.py    # mở được, nhưng bấm Download sẽ ModuleNotFoundError
 ```
 
-❌ Sai (sẽ lỗi import):
+CLI thì chạy trực tiếp vẫn được:
 
 ```powershell
-python -m comix_downloader gui    # thư mục không phải package (tên có dấu -, không có __init__.py hợp lệ cho layout này)
-py gui.py                          # nếu không đứng đúng thư mục
+python comix_downloader\cli.py download ...   # OK (đã test thật)
 ```
+
+⚠️ Phải chạy `python -m ...` từ `F:\GitHub_Interesting_Repos\inkwell` (repo root), KHÔNG từ bên trong `comix_downloader\`.
 
 ---
 
@@ -82,7 +79,7 @@ Cửa sổ "comix.to Manga Scraper", 800x700 (min 760x560). Các khu vực:
 | **Convert to PDF** | Convert chapter → PDF sau khi tải (file `chapter.pdf` cạnh folder chapter) |
 | **Convert to CBZ** | Convert chapter → CBZ (comic archive) |
 | **Keep Images (PDF/CBZ)** | Chỉ bật được khi tick PDF hoặc CBZ; mặc định ảnh gốc **sẽ bị xóa** sau khi convert. Tick ô này để giữ ảnh |
-| **Auto-delete Chrome session** | Xóa `comix-downloader\.chrome_profile\` sau khi tải xong (profile chứa cookies/session — không nên commit) |
+| **Auto-delete Chrome session** | Xóa `comix_downloader\.chrome_profile\` sau khi tải xong (profile chứa cookies/session — không nên commit) |
 | **Resume (skip downloaded)** | Bỏ qua chapter đã tải đủ trang trên disk (kiểm tra gap theo số trang reader). Chapter tải dở sẽ được tải lại |
 
 ### 3.4. Settings
@@ -92,30 +89,17 @@ Cửa sổ "comix.to Manga Scraper", 800x700 (min 760x560). Các khu vực:
 - **JPEG Quality (50–100)**: mặc định **92**, chỉ áp dụng khi format = jpeg
 - Chọn png/jpeg mà chưa cài Pillow → log sẽ báo và lưu original
 
-### 3.5. Luồng chuẩn
-1. Paste Series URL → **Get Info**
-2. (Tuỳ chọn) Chọn **Group**, xem chapters qua **List Chapters** để biết vị trí cần tải
-3. **Download All** hoặc **Download Range**
-4. Xem progress bar + log; bấm **Stop All Downloads** để huỷ
+### 3.5. Lỗi import cũ — ĐÃ HẾT nhờ đổi tên thư mục
+Trước đây code có dòng `from comix_downloader.comix_scraper import cleanup_chrome_profile` mà thư mục lại tên `comix-downloader` (có dấu gạch ngang) → `ModuleNotFoundError`, GUI treo im lặng khi bấm Download.
+**Đã sửa bằng cách đổi tên thư mục thành `comix_downloader`** → câu import chạy đúng khi khởi chạy bằng `python -m comix_downloader gui` từ repo root.
+Lưu ý còn lại: nếu chạy trực tiếp `python comix_downloader\gui.py` thay vì `-m`, dòng đó vẫn không resolve được (package không nằm trên search path) — nên luôn dùng đường `-m`.
 
-### ⚠ LỖI ĐÃ BIẾT trong bản copy này (layout phẳng)
-`gui.py` dòng ~434 (trong `_download_chapters`):
-
-```python
-from comix_downloader.comix_scraper import cleanup_chrome_profile
-```
-
-Đây là import tuyệt đối kiểu package, **không chạy được ở layout phẳng** — khi bấm Download, thread sẽ ném `ModuleNotFoundError` ngay lập tức và không tải được gì.
-Cách sửa (chưa áp dụng — code đang giữ nguyên bản copy): đổi thành try/except fallback như phần import đầu file, ví dụ:
-
-```python
-try:
-    from comix_downloader.comix_scraper import cleanup_chrome_profile
-except ImportError:
-    from comix_scraper import cleanup_chrome_profile
-```
-
-(CLI **không bị lỗi này** — đã test thật, xem mục 6.)
+### 3.6. Luồng chuẩn
+1. `python -m comix_downloader gui` (từ repo root)
+2. Paste Series URL → **Get Info**
+3. (Tuỳ chọn) Chọn **Group**, xem chapters qua **List Chapters** để biết vị trí cần tải
+4. **Download All** hoặc **Download Range**
+5. Xem progress bar + log; bấm **Stop All Downloads** để huỷ
 
 ---
 
@@ -124,13 +108,13 @@ except ImportError:
 Chạy từ `F:\GitHub_Interesting_Repos\inkwell`:
 
 ```
-python comix-downloader\cli.py <command> [options]
+python -m comix_downloader <command> [options]
 ```
 
 ### 4.1 `info` — xem thông tin series
 
 ```powershell
-python comix-downloader\cli.py info "https://comix.to/title/wv5rr-wireless-onahole" [--group /groups/11494]
+python -m comix_downloader info "https://comix.to/title/wv5rr-wireless-onahole" [--group /groups/11494]
 ```
 
 In title + số chapters; sau đó **hỏi** có liệt kê chapters không (yes/no).
@@ -139,7 +123,7 @@ In title + số chapters; sau đó **hỏi** có liệt kê chapters không (yes
 ### 4.2 `list` — liệt kê chapters
 
 ```powershell
-python comix-downloader\cli.py list "<url>" [--group /groups/11494]
+python -m comix_downloader list "<url>" [--group /groups/11494]
 ```
 
 In dạng `1. Ch.126Doro Toons - 126! [Doro toons] (url)` — cột số đầu chính là **vị trí** dùng cho `--range`.
@@ -147,7 +131,7 @@ In dạng `1. Ch.126Doro Toons - 126! [Doro toons] (url)` — cột số đầu 
 ### 4.3 `download` — tải chapters
 
 ```powershell
-python comix-downloader\cli.py download "<url>" [OPTIONS]
+python -m comix_downloader download "<url>" [OPTIONS]
 ```
 
 | Option | Mặc định | Ý nghĩa |
@@ -175,7 +159,7 @@ Hành vi:
 ### 4.4 `gui` — mở GUI
 
 ```powershell
-python comix-downloader\cli.py gui
+python -m comix_downloader gui
 ```
 
 ### 4.5 `search` — CHƯA DÙNG ĐƯỢC
@@ -189,7 +173,7 @@ Under development, chỉ là stub (comix không có search). Dùng URL trực ti
 `--group` nhận **href** (`/groups/NNNN`), **không** nhận tên nhóm. Cách dò:
 
 ```powershell
-python comix-downloader\cli.py download "<url>"
+python -m comix_downloader download "<url>"
 ```
 
 Không kèm option gì → in:
@@ -211,17 +195,18 @@ GUI chọn trực tiếp từ dropdown **Group**.
 URL: `https://comix.to/title/wv5rr-wireless-onahole` — title chứa nội dung người lớn; tool chỉ tải file về máy.
 
 ```powershell
+cd F:\GitHub_Interesting_Repos\inkwell
 # 1) Dò groups (như trên) → Doro toons = /groups/11494
-# 2) List chapters của Doro toons (chỉ 3 chapter: 126, 127, 128 → vị trí 1, 2, 3)
-python comix-downloader\cli.py list "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494
-# 3) Chạy thử không kèm option (chỉ để kiểm tra dò group) — không tải gì
-python comix-downloader\cli.py download "https://comix.to/title/wv5rr-wireless-onahole"
+# 2) List chapters của Doro toons (3 chapter: 126, 127, 128 → vị trí 1, 2, 3)
+python -m comix_downloader list "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494
+# 3) Chạy thử không kèm option (chỉ dò group) — không tải gì
+python -m comix_downloader download "https://comix.to/title/wv5rr-wireless-onahole"
 # 4) Tải ch.128 (vị trí 3), lưu vào thư mục hiện tại
-python comix-downloader\cli.py download "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494 --range 3-3 -o .
+python -m comix_downloader download "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494 --range 3-3 -o .
 #    → 106/106 ảnh, 17.3 MB, exit 0
 # 5) Tải + convert PDF, giữ ảnh gốc
-python comix-downloader\cli.py download "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494 --range 3-3 -o . --pdf --keep-images
-#    → PDF 8.87 MB, 106 trang (Wireless_Onahole\Doro_toons\Ch128Doro_Toons_-_128.pdf)
+python -m comix_downloader download "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494 --range 3-3 -o . --pdf --keep-images
+#    → PDF 8.87 MB, 106 trang
 ```
 
 Kết quả CLI thật: OK cho `info`/`list`/`download`. GUI **chưa được mở test** trên máy này.
@@ -233,21 +218,21 @@ Kết quả CLI thật: OK cho `info`/`list`/`download`. GUI **chưa được m�
 | Triệu chứng | Nguyên nhân | Cách xử lý |
 |---|---|---|
 | `Read the title '...' but found no chapters.` | Site chặn/tải chậm — đã gặp 1 lần khi test (4 lần walk: 3 OK, 1 fail) | Thử lại sau vài chục giây; không có gì bị xóa |
-| GUI bấm Download xong im lặng / log báo import error | Lỗi đã biết mục 3.5 (`comix_downloader.comix_scraper` không tồn tại ở layout phẳng) | Áp dụng fallback import ở mục 3.5, hoặc dùng CLI |
+| Bấm Download trên GUI xong đứng im / báo `ModuleNotFoundError: No module named 'comix_downloader'` | Chạy GUI trực tiếp thay vì qua `-m` — package không nằm trên search path | Chạy từ repo root: `python -m comix_downloader gui` |
 | Chrome treo / nhiều cửa sổ Chrome rác | Tool mở Chrome thật | `Stop-Process -Name chrome -Force` |
 | `PIL not available, cannot convert to PDF` | Thiếu Pillow | `pip install Pillow` |
 | `undetected-chromedriver` kén phiên bản Chrome | Tool không pin version (tự detect) — đúng thiết kế | Cập nhật Chrome + `pip install -U undetected-chromedriver` |
 | Tải xong thiếu ảnh / chapter incomplete | Mạng chập chờn; server chặn giữa chừng | Chạy lại với `--resume` — chỉ tải lại chapter thiếu |
-| `.chrome_profile\` phình to (~100MB) | Profile Chrome thật của tool (cookies, session) | Tick **Auto-delete Chrome session** trong GUI, hoặc xóa tay; **KHÔNG commit thư mục này** |
-| Lỗi `ImportError` khi chạy GUI trực tiếp | Đứng sai thư mục / dùng `python -m` | Xem mục 2 |
+| `.chrome_profile\` phình to (~100MB+) | Profile Chrome thật của tool (cookies, session) | Tick **Auto-delete Chrome session** trong GUI, hoặc xóa tay; **KHÔNG commit thư mục này** (đã có `.gitignore` trong `comix_downloader\`) |
+| `python -m comix_downloader` báo `No module named 'comix_downloader'` | Đang đứng sai thư mục (không phải repo root) | `cd F:\GitHub_Interesting_Repos\inkwell` trước khi chạy |
 
 ---
 
 ## 8. Dữ liệu & dọn dẹp trước khi commit
 
-- `comix-downloader\.chrome_profile\` — **runtime data, chứa cookies/session** → phải nằm trong `.gitignore`, không commit.
+- `comix_downloader\.chrome_profile\` — **runtime data, chứa cookies/session** → đã có trong `comix_downloader\.gitignore`; không commit.
 - `Wireless_Onahole\` (output test) — tuỳ bạn xoá hoặc giữ; không phải source code.
-- `comix-downloader\__pycache__\`, `*.pyc` — đã nằm trong `.gitignore` của repo.
+- `comix_downloader\__pycache__\`, `*.pyc` — đã nằm trong `.gitignore` của repo.
 - Output mặc định là `<Series>\<Group>\<Chapter>\` — đừng commit nhầm nếu tải về repo root.
 
 ---
@@ -257,13 +242,13 @@ Kết quả CLI thật: OK cho `info`/`list`/`download`. GUI **chưa được m�
 ```powershell
 cd F:\GitHub_Interesting_Repos\inkwell
 
-# GUI
-python comix-downloader\cli.py gui
+# GUI (từ repo root — BẮT BUỘC qua -m)
+python -m comix_downloader gui
 
 # CLI — info / list / tải ch.128 (Doro toons, vị trí 3) + PDF
-python comix-downloader\cli.py info "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494
-python comix-downloader\cli.py list "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494
-python comix-downloader\cli.py download "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494 --range 3-3 -o . --pdf --keep-images
+python -m comix_downloader info "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494
+python -m comix_downloader list "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494
+python -m comix_downloader download "https://comix.to/title/wv5rr-wireless-onahole" --group /groups/11494 --range 3-3 -o . --pdf --keep-images
 ```
 
-**Ghi chú phiên bản:** file này phản ánh bản copy trên branch `feat/comix-downloader`, CLI test ngày 2026-11-15 (Windows). GUI chưa test.
+**Ghi chú phiên bản:** file phản ánh bản sau khi đổi tên thư mục (2026-11-15, Windows). CLI đã test thật theo đường `python -m`. GUI chưa test — mở thử bằng đúng lệnh ở mục 2.
