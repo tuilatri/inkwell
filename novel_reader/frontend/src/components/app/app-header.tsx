@@ -7,7 +7,6 @@ import { Kbd } from '@/components/ui/kbd'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 export function AppHeader({ onOpenSearch, minimal = false }: { onOpenSearch?: () => void; minimal?: boolean }) {
   async function logout() {
@@ -34,21 +33,16 @@ export function AppHeader({ onOpenSearch, minimal = false }: { onOpenSearch?: ()
             <span className="hidden sm:inline">Tìm chương</span>
             <Kbd className="hidden sm:inline-flex">⌘K</Kbd>
           </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label="Tài khoản">···</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onSelect={logout} className="text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" aria-hidden="true" /> Đăng xuất
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TooltipTrigger>
-            <TooltipContent>Tài khoản</TooltipContent>
-          </Tooltip>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Tài khoản">···</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={logout} className="text-destructive">
+                <LogOut className="mr-2 h-4 w-4" aria-hidden="true" /> Đăng xuất
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
     </header>

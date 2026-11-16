@@ -9,7 +9,7 @@
 
 ## 2. Key components
 - `components/ui/` — 483 lines, 24 files: shadcn/new-york primitives (Radix-based). One primary component per file: button, input, label, card, badge, separator, skeleton, alert, spinner, empty, kbd, typography, tooltip, progress, tabs, dropdown-menu, scroll-area, slider, dialog, sheet, command, sonner, switch, toggle-group. Compound parts (CardHeader, TabsTrigger, …) live with their family.
-- `components/app/` — 16 files, one responsibility per file: theme-provider, app-header (navbar; brand links home, search, account; `minimal` variant for login), app-footer, login-form, novel-card, variants-tabs, search-command, chapter-filter, virtual-chapter-list, reader-toolbar, reader-view, reading-progress, mobile-chapter-sheet, keyboard-shortcuts, empty-state, error-state. Navbar + footer appear on login/library/reader; reader toolbar sticks below the navbar (`top-16`).
+- `components/app/` — 17 files, one responsibility per file: theme-provider, app-header (navbar; brand links home, search, account dropdown with "Đăng xuất"; `minimal` variant for login), app-footer, login-form, novel-card, variants-tabs, search-command, chapter-filter, virtual-chapter-list, reader-toolbar, reader-view, reading-progress, mobile-chapter-sheet, keyboard-shortcuts, empty-state, error-state. Navbar + footer appear on login/library/reader; reader toolbar sticks below the navbar (`top-16`).
 
 ## 3. UI conventions
 - Single dark theme "Night reading desk": warm graphite `#15130f`, parchment-tinted card `#1e1b16`, one amber accent `#e0a458`; tokens in `src/index.css` (`@theme inline`).
@@ -19,6 +19,7 @@
 - Keyboard: ⌘K search; J/K or ←/→ chapter nav; Esc closes overlays. Mobile: chapter list in a `Sheet`.
 - Search is predictive: suggestions on open (empty query), accent-insensitive prefix/substring in Postgres (`unaccent(...) ILIKE` + FTS), 180 ms debounce, matched text highlighted, spinner/empty state gated on loading.
 - Affordances: pointer cursor on all interactive controls, focus ring on buttons/links/tabs, border-only focus on inputs (including cmdk combobox — no outline spilling outside); the command palette wrapper uses `focus-within:border-accent`. Motion vocabulary: overlay fade, dialog scale, sheet slide, card lift, content rise; `prefers-reduced-motion` respected.
+- `Button` uses `React.forwardRef` — required by Radix `asChild` (dropdown/tooltip/sheet triggers) so Popper can anchor overlay content.
 
 ## 4. lib/
 - `src/lib/utils.ts` — `cn()` (clsx + tailwind-merge), shadcn convention.

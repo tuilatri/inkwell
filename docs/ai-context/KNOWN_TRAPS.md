@@ -32,4 +32,7 @@ With an empty hit list, cmdk shows `CommandEmpty` immediately — the palette di
 ## 10. `[role="combobox"]:focus-visible` specificity beats `input:focus-visible`
 cmdk's input carries `role="combobox"`, so the generic combobox outline rule (specificity 0,2,0) overrode the input no-outline rule (0,1,1), drawing a 2px amber rectangle + 2px offset outside the searchbar. Fix: drop combobox from the outline list and add an explicit `input[role="combobox"]:focus-visible` rule (0,2,1) with `outline: none`; show focus via the wrapper's `focus-within:border-accent` instead.
 
-## 11.
+## 11. `asChild` children must forward refs (Button!)
+The account dropdown appeared to open but its content sat at `translate(0, -200%)` off-screen. Root cause: our `Button` was a plain function component, so Radix `Slot` (via `DropdownMenuTrigger asChild`) could not attach a ref to the DOM button → Popper had no anchor and never positioned the menu. Fix: `React.forwardRef<HTMLButtonElement, ButtonProps>` on `Button`. Secondary: don't wrap a `DropdownMenu` root in `TooltipTrigger asChild` — keep Tooltip inside the menu with the trigger button as the `asChild` child. Verify with a real browser: `toBeVisible()` passes for off-screen portals; assert the menu's bounding box `y > 0`.
+
+## 12.

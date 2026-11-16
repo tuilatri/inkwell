@@ -15,6 +15,15 @@ test.describe('Inkwell Novel Reader flow', () => {
     await expect(page.getByRole('heading', { name: 'Thư viện' })).toBeVisible({ timeout: 180_000 })
     await expect(page.getByTestId('app-footer')).toBeVisible()
     await page.screenshot({ path: 'test-results/desktop-library.png' })
+    await page.getByRole('button', { name: 'Tài khoản' }).click()
+    await expect(page.getByRole('menuitem', { name: /Đăng xuất/ })).toBeVisible()
+    // Popper needs a layout tick; the menu must be inside the viewport, not
+    // merely "visible" in the CSS sense (a broken ref leaves it at translate(0,-200%)).
+    const menuBox = await page.locator('[role="menu"]').boundingBox()
+    expect(menuBox && menuBox.y > 0).toBeTruthy()
+    await page.waitForTimeout(200)
+    await page.screenshot({ path: 'test-results/account-menu.png' })
+    await page.keyboard.press('Escape')
     const titles = page.locator('button:has-text("Mở truyện")')
     await expect(titles.first()).toBeVisible()
     expect(await titles.count()).toBe(4)
