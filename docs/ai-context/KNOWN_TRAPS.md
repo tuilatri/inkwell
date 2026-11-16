@@ -17,4 +17,7 @@ Substring filtering turns "128" into 1128/1280/… Fix: if the query is all digi
 ## 5. Playwright locators on cmdk input
 cmdk renders its input with `role="combobox"`, not `textbox`; `getByPlaceholder` with Vietnamese diacritics was brittle in this shell. Fix: `page.getByRole('combobox', { name: 'Tìm kiếm' })`.
 
-## 6.
+## 6. Fixed floating action overlaps the chapter navigation
+A `fixed bottom-4 right-4` chapter-list trigger sat on top of the "Chương sau" button at the article bottom. Fix: remove the floating trigger; the controlled `Sheet` is opened from the ReaderToolbar button instead, and prev/next stay in one normal flow row. Verified with a full-page screenshot.
+
+## 7.

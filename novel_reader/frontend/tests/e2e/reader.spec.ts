@@ -13,6 +13,7 @@ test.describe('Inkwell Novel Reader flow', () => {
     await page.getByRole('button', { name: 'Đăng nhập' }).click()
 
     await expect(page.getByRole('heading', { name: 'Thư viện' })).toBeVisible({ timeout: 180_000 })
+    await expect(page.getByTestId('app-footer')).toBeVisible()
     await page.screenshot({ path: 'test-results/desktop-library.png' })
     const titles = page.locator('button:has-text("Mở truyện")')
     await expect(titles.first()).toBeVisible()
@@ -26,6 +27,9 @@ test.describe('Inkwell Novel Reader flow', () => {
     await page.getByTestId('chapter-list').getByRole('button').first().click()
 
     await expect(page.getByTestId('reader-view')).toBeVisible()
+    await expect(page.getByTestId('app-footer')).toBeVisible()
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.screenshot({ path: 'test-results/reader-bottom.png' })
     await page.evaluate(() => window.scrollTo(0, 600))
     await page.waitForTimeout(1500)
     await page.reload()
@@ -33,7 +37,7 @@ test.describe('Inkwell Novel Reader flow', () => {
     await page.waitForTimeout(1000)
     expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(100)
 
-    await page.getByRole('button', { name: 'Mở tìm kiếm' }).click()
+    await page.getByRole('button', { name: 'Mở tìm kiếm' }).first().click()
     const searchInput = page.getByRole('combobox', { name: 'Tìm kiếm' })
     await searchInput.fill('chuong 1')
     await expect(searchInput).toBeVisible()

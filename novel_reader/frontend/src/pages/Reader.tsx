@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { apiFetch } from '@/api/client'
+import { AppFooter } from '@/components/app/app-footer'
+import { AppHeader } from '@/components/app/app-header'
 import { ChapterFilter } from '@/components/app/chapter-filter'
 import { ErrorState } from '@/components/app/error-state'
 import { KeyboardShortcuts } from '@/components/app/keyboard-shortcuts'
@@ -117,7 +119,8 @@ export default function Reader() {
   const next = index >= 0 && index < chapters.length - 1 ? chapters[index + 1] : undefined
 
   return (
-    <div className="min-h-svh">
+    <div className="flex min-h-svh flex-col">
+      <AppHeader onOpenSearch={() => setSearchOpen(true)} />
       <ReaderToolbar
         chapter={chapter}
         fontSize={fontSize}
@@ -143,9 +146,7 @@ export default function Reader() {
           <VirtualChapterList chapters={chapters} filter={filter} onSelect={(id) => navigate(`/read/${id}`)} className="h-[calc(100vh-9rem)]" />
         </aside>
       </div>
-      <div className="fixed bottom-4 right-4 lg:hidden">
-        <MobileChapterSheet chapters={chapters} filter={filter} onFilter={setFilter} onSelect={(id) => { setListOpen(false); navigate(`/read/${id}`) }} open={listOpen} onOpenChange={setListOpen} />
-      </div>
+      <MobileChapterSheet chapters={chapters} filter={filter} onFilter={setFilter} onSelect={(id) => { setListOpen(false); navigate(`/read/${id}`) }} open={listOpen} onOpenChange={setListOpen} />
       <KeyboardShortcuts
         onPrev={() => prev && navigate(`/read/${prev.id}`)}
         onNext={() => next && navigate(`/read/${next.id}`)}
@@ -157,6 +158,7 @@ export default function Reader() {
         variantId={null}
         onPick={(id) => navigate(`/read/${id}`)}
       />
+      <AppFooter />
     </div>
   )
 }

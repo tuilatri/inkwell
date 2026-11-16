@@ -17,7 +17,7 @@ export function ReadingProgress({ enabled }: { enabled: boolean }) {
   }, [enabled])
 
   return (
-    <div className="sticky top-[57px] z-10 -mb-1.5 px-4 sm:px-6" aria-label="Tiến độ đọc">
+    <div className="sticky top-[121px] z-10 -mb-1.5 px-4 sm:px-6" aria-label="Tiến độ đọc">
       <Progress value={value} />
     </div>
   )

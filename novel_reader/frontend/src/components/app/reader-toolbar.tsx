@@ -15,7 +15,7 @@ export function ReaderToolbar({ chapter, fontSize, lineHeight, onFontSize, onLin
   onSearch: () => void
 }) {
   return (
-    <div className="sticky top-0 z-20 flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+    <div className="sticky top-16 z-20 flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:px-6">
       <Button variant="ghost" size="icon" onClick={onBack} aria-label="Quay lại">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
       </Button>

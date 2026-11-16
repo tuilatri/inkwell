@@ -1,6 +1,4 @@
-import { List } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { VirtualChapterList } from '@/components/app/virtual-chapter-list'
 import type { Chapter } from '@/types'
 
@@ -14,11 +12,6 @@ export function MobileChapterSheet({ chapters, filter, onFilter, onSelect, open,
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Mở danh sách chương">
-          <List className="h-5 w-5" aria-hidden="true" />
-        </Button>
-      </SheetTrigger>
       <SheetContent side="right">
         <SheetTitle>Danh sách chương</SheetTitle>
         <div className="px-4">

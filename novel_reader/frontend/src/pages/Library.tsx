@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '@/api/client'
+import { AppFooter } from '@/components/app/app-footer'
 import { AppHeader } from '@/components/app/app-header'
 import { ChapterFilter } from '@/components/app/chapter-filter'
 import { EmptyState } from '@/components/app/empty-state'
@@ -119,6 +120,7 @@ export default function Library() {
         variantId={activeVariant?.id ?? null}
         onPick={(id) => navigate(`/read/${id}`)}
       />
+      <AppFooter />
     </div>
   )
 }
