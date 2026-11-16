@@ -22,8 +22,17 @@ npx playwright test          # needs Chrome channel + .env credentials + backend
 
 # Harness gates (from repo root)
 node scripts/verify.mjs      # serial fail-fast, gates in kit.config.json
-node scripts/doc-truth.mjs   # claims in kit.config.json
+node scripts/verify.mjs --fast   # only docs-truth + skills-integrity (gates tagged "slow" skipped)
+node scripts/doc-truth.mjs   # claims in kit.config.json alone
 ```
+
+`.githooks/pre-commit` runs the `--fast` guard before each commit; enable it in a
+fresh clone with `git config core.hooksPath .githooks` (already set in this clone).
+Gates tagged `slow` = backend-tests, frontend-tests, frontend-build — full suite
+runs in `.github/workflows/ci.yml` on push to `main`/`feat/**` and PRs to `main`
+(windows-latest, Python 3.13 + Node 22, backend venv + `pip install -e ".[test]"`,
+frontend `npm ci`, then `node scripts/verify.mjs`). CI needs no secrets: tests use
+SQLite/env overrides and E2E is not part of the gate suite.
 
 Playwright reads `ADMIN_USERNAME`/`ADMIN_PASSWORD` from the untracked `novel_reader/.env` and skips login-dependent checks if absent. Dev servers are started by `playwright.config.ts` (Vite :5173 + uvicorn :8000).
 
