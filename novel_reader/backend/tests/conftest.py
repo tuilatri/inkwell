@@ -23,7 +23,7 @@ _en.mkdir(exist_ok=True)
 (_en / "Chapter_0001_English.txt").write_text("Chapter one English text", encoding="utf-8")
 
 os.environ.setdefault("ENVIRONMENT", "local")
-os.environ.setdefault("SECRET_KEY", "unit-test-secret-key")
+os.environ.setdefault("SECRET_KEY", "unit-test-secret-key-at-least-32-bytes-long")
 # File-backed SQLite: the test session and the app's request sessions each
 # need their own connection (:memory: + StaticPool deadlocks on concurrent checkout).
 TEST_DB_PATH = FIXTURE_ROOT / "test.db"

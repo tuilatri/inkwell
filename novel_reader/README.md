@@ -16,13 +16,17 @@ novel_reader/
 
 1. `cp .env.example .env` and fill in real values. `SECRET_KEY` must be a long random string.
 2. DB links: the owner supplies two empty Postgres URLs (production + test). Development and migrations use **TEST** first. Production is never contacted without explicit approval.
-3. Backend:
+3. Backend (always use the project-local virtual environment):
    ```
    cd backend
-   pip install -e .
+   python -m venv .venv
+   .\.venv\Scripts\activate          # Windows
+   # source .venv/bin/activate        # macOS/Linux
+   pip install -e ".[test]"
    alembic upgrade head
    uvicorn app.main:app --reload --port 8000
    ```
+   `.venv/`, `.pytest_cache/` and `*.egg-info/` are gitignored. Nothing is installed globally.
 4. Frontend:
    ```
    cd frontend
