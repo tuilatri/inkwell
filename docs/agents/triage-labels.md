@@ -12,3 +12,6 @@
 | `chore` | Maintenance, no behavior change |
 | `docs` | Documentation-only change |
 | `wontfix` | Considered and rejected — do not revisit |
+| `scraper` | `comix_downloader/` — Comix.to scraping, pagination, session/profile issues |
+| `reader` | `novel_reader/` — FastAPI + React reader, scanner, FTS, reading position |
+| `ui` | Visual/UX work in `novel_reader/frontend/` (shadcn, a11y, motion) |

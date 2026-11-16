@@ -60,11 +60,12 @@
 
 | Task touches | Read **before** editing | Update **when changed** |
 |---|---|---|
-| any endpoint in `backend/app/api/` *(project-specific)* | `docs/ai-context/API_MAP.md` | ✔ |
-| any service in `backend/app/services/` *(project-specific)* | `docs/ai-context/ARCHITECTURE.md` §2, §5 | ✔ |
-| any route in `frontend/src/app/` *(project-specific)* | `docs/ai-context/FRONTEND_MAP.md` §1 | ✔ |
-| anything in `frontend/src/components/` *(project-specific)* | `docs/ai-context/FRONTEND_MAP.md` §2–§5 | ✔ |
-| backend/tests or pytest config | `docs/ai-context/TESTING_GUIDE.md` | ✔ |
+| any endpoint in `novel_reader/backend/app/api/` | `docs/ai-context/API_MAP.md` | ✔ |
+| any service in `novel_reader/backend/app/services/` | `docs/ai-context/ARCHITECTURE.md` §2, §5 | ✔ |
+| any route/page in `novel_reader/frontend/src/pages/` | `docs/ai-context/FRONTEND_MAP.md` §1 | ✔ |
+| anything in `novel_reader/frontend/src/components/` | `docs/ai-context/FRONTEND_MAP.md` §2–§5 | ✔ |
+| anything in `comix_downloader/` (scraper) | `docs/ai-context/MODULE_MAP.md` + `ARCHITECTURE.md` §6 | ✔ |
+| backend tests or pytest config | `docs/ai-context/TESTING_GUIDE.md` | ✔ |
 | repo structure, adding/removing apps | `docs/ai-context/MODULE_MAP.md` | ✔ |
 | `HOW_TO_RUN.txt`, `.env*` | Standing Rules 7 | ✔ |
 | add/change gates, claims | `kit.config.json` (+ `kit.config.schema.json`) | ✔ |
@@ -77,14 +78,14 @@
 
 ---
 
-# Quick Facts — {{MEASURE, fill in this project's numbers}}
+# Quick Facts — measured 2026-11-17
 
 | | |
 |---|---|
-| Apps | *(fill in: stack + non-empty line count per app — measure with `git ls-files` + count non-empty lines)* |
-| Backend entry | *(fill in: run command)* |
-| Frontend entry | *(fill in: run + test command)* |
-| DB | *(fill in: DB type, name, convention)* |
-| Auth | *(fill in: scheme, cookie/session, gate)* |
-| Agent roles | `.claude/agents/` — *(fill in count)* role files, native frontmatter, body referencing `docs/ai-context/` |
-| Verify | `node scripts/verify.mjs` — gates read from `kit.config.json` (`--fast` skips `slow` tags, `--list` to list them) |
+| Apps | `comix_downloader/` — Python scraper, 10 files / 2.880 lines · `novel_reader/backend/` — FastAPI, 33 files / 1.484 lines · `novel_reader/frontend/src/` — React/Vite/TS, 58 files / 1.662 lines |
+| Backend entry | `cd novel_reader/backend && .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000` |
+| Frontend entry | `cd novel_reader/frontend && npm run dev` (`:5173`, `/api` proxied to `:8000`) |
+| DB | PostgreSQL 18 — two empty-at-setup DBs (TEST used by default, PRODUCTION only on request); Alembic `0001_initial` + `0002_source_dir_and_soft_delete`; tables created on both |
+| Auth | Single admin seeded from `.env` on empty `admin_users`; argon2id password; JWT in `nr_access`/`nr_refresh` HttpOnly cookies (`jti` in DB); CSRF header on state-changing routes |
+| Agent roles | `.claude/agents/` — 10 role cards + README, native frontmatter, body referencing `docs/ai-context/` |
+| Verify | `node scripts/verify.mjs` — gates in `kit.config.json` (pytest / vitest / build); `node scripts/doc-truth.mjs` checks claims; `--fast` skips `slow`, `--list` lists gates |
