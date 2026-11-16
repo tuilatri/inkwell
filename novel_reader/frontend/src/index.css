@@ -58,17 +58,19 @@ button:focus-visible,
 a:focus-visible,
 [role="button"]:focus-visible,
 [role="tab"]:focus-visible,
-[role="combobox"]:focus-visible,
 [cmdk-item]:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Inputs keep a visible focus state without the harsh full ring around the box. */
+/* Inputs (including cmdk's combobox) must never get an outline that spills
+   outside their container; a border-color change is the focus affordance. */
 input:focus-visible,
+input[role="combobox"]:focus-visible,
 textarea:focus-visible {
   outline: none;
+  outline-offset: 0;
   border-color: var(--ring);
 }
 

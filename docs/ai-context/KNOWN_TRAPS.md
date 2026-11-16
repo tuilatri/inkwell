@@ -29,4 +29,7 @@ With an empty hit list, cmdk shows `CommandEmpty` immediately — the palette di
 ## 9. Postgres FTS alone can't do prefix search
 `websearch_to_tsquery('simple', unaccent(q))` matches whole lexemes only, so "wire" missed "Wireless_Onahole". Fix: OR it with `unaccent(c.title) ILIKE '%' || unaccent(:q) || '%'` (and novel title), ordering exact prefixes first.
 
-## 10.
+## 10. `[role="combobox"]:focus-visible` specificity beats `input:focus-visible`
+cmdk's input carries `role="combobox"`, so the generic combobox outline rule (specificity 0,2,0) overrode the input no-outline rule (0,1,1), drawing a 2px amber rectangle + 2px offset outside the searchbar. Fix: drop combobox from the outline list and add an explicit `input[role="combobox"]:focus-visible` rule (0,2,1) with `outline: none`; show focus via the wrapper's `focus-within:border-accent` instead.
+
+## 11.

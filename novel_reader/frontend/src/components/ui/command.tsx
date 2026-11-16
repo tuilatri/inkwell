@@ -10,7 +10,7 @@ export function Command({ className, ...props }: React.ComponentProps<typeof Com
 
 export function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div className="flex items-center gap-2 border-b border-border px-3">
+    <div className="flex items-center gap-2 border-b border-border px-3 transition-colors focus-within:border-accent">
       <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       <CommandPrimitive.Input className={cn('flex h-11 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground', className)} {...props} />
     </div>

@@ -18,7 +18,7 @@
 - Every async path has loading skeletons, empty state, or error alert; toasts for saved position.
 - Keyboard: ⌘K search; J/K or ←/→ chapter nav; Esc closes overlays. Mobile: chapter list in a `Sheet`.
 - Search is predictive: suggestions on open (empty query), accent-insensitive prefix/substring in Postgres (`unaccent(...) ILIKE` + FTS), 180 ms debounce, matched text highlighted, spinner/empty state gated on loading.
-- Affordances: pointer cursor on all interactive controls, focus ring on buttons/links/tabs, border-only focus on inputs. Motion vocabulary: overlay fade, dialog scale, sheet slide, card lift, content rise; `prefers-reduced-motion` respected.
+- Affordances: pointer cursor on all interactive controls, focus ring on buttons/links/tabs, border-only focus on inputs (including cmdk combobox — no outline spilling outside); the command palette wrapper uses `focus-within:border-accent`. Motion vocabulary: overlay fade, dialog scale, sheet slide, card lift, content rise; `prefers-reduced-motion` respected.
 
 ## 4. lib/
 - `src/lib/utils.ts` — `cn()` (clsx + tailwind-merge), shadcn convention.
