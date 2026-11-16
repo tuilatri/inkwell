@@ -1,0 +1,16 @@
+import { Toaster as SonnerToaster } from 'sonner'
+
+export function Toaster() {
+  return (
+    <SonnerToaster
+      theme="dark"
+      position="bottom-right"
+      toastOptions={{
+        classNames: {
+          toast: '!bg-card !text-foreground !border-border',
+          description: '!text-muted-foreground',
+        },
+      }}
+    />
+  )
+}

@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* "Night reading desk": warm graphite canvas, parchment-tinted surfaces,
+   one amber accent. Dark is the only theme, but everything is token-driven. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
+:root {
+  --background: #15130f;
+  --foreground: #ece6da;
+  --card: #1e1b16;
+  --card-foreground: #ece6da;
+  --muted: #26221b;
+  --muted-foreground: #b3a894;
+  --accent: #e0a458;
+  --accent-foreground: #1a140c;
+  --destructive: #e2846f;
+  --border: #3a342a;
+  --input: #3a342a;
+  --ring: #e0a458;
+  --radius: 0.625rem;
+}
+
+* { border-color: var(--border); }
+
+html { color-scheme: dark; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--accent); color: var(--accent-foreground); }
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+input::placeholder, textarea::placeholder { color: var(--muted-foreground); opacity: 1; }
+
+.tabular { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
