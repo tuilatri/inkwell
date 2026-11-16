@@ -39,8 +39,10 @@ test.describe('Inkwell Novel Reader flow', () => {
 
     await page.getByRole('button', { name: 'Mở tìm kiếm' }).first().click()
     const searchInput = page.getByRole('combobox', { name: 'Tìm kiếm' })
-    await searchInput.fill('chuong 1')
-    await expect(searchInput).toBeVisible()
+    await expect(page.locator('[cmdk-item]').first()).toBeVisible() // suggestions on open
+    await searchInput.fill('wire') // partial prefix, not the full title
+    await expect(page.locator('[cmdk-item]').first()).toBeVisible()
+    await page.screenshot({ path: 'test-results/search-dialog.png' })
   })
 
   test('mobile viewport keeps the chapter list reachable', async ({ browser }) => {

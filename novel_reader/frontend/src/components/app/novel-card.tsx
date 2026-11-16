@@ -1,11 +1,12 @@
 import { BookText, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function NovelCard({ title, chapterCount, active, onOpen }: { title: string; chapterCount?: number; active?: boolean; onOpen: () => void }) {
   return (
-    <Card className={active ? 'border-accent/60' : undefined}>
+    <Card className={cn('card-hover rise-in', active ? 'border-accent/60' : undefined)}>
       <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted text-accent">

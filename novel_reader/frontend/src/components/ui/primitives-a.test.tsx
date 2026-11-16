@@ -8,7 +8,9 @@ import { Typography } from './typography'
 describe('form and display primitives', () => {
   it('Button applies the primary variant token classes', () => {
     render(<Button>Hành động</Button>)
-    expect(screen.getByRole('button', { name: 'Hành động' }).className).toContain('bg-accent')
+    const button = screen.getByRole('button', { name: 'Hành động' })
+    expect(button.className).toContain('bg-accent')
+    expect(button.className).toContain('cursor-pointer')
   })
 
   it('Skeleton renders a pulsing placeholder', () => {

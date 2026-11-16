@@ -17,10 +17,13 @@
 - No covers/images in library — titles only (owner requirement).
 - Every async path has loading skeletons, empty state, or error alert; toasts for saved position.
 - Keyboard: ⌘K search; J/K or ←/→ chapter nav; Esc closes overlays. Mobile: chapter list in a `Sheet`.
+- Search is predictive: suggestions on open (empty query), accent-insensitive prefix/substring in Postgres (`unaccent(...) ILIKE` + FTS), 180 ms debounce, matched text highlighted, spinner/empty state gated on loading.
+- Affordances: pointer cursor on all interactive controls, focus ring on buttons/links/tabs, border-only focus on inputs. Motion vocabulary: overlay fade, dialog scale, sheet slide, card lift, content rise; `prefers-reduced-motion` respected.
 
 ## 4. lib/
 - `src/lib/utils.ts` — `cn()` (clsx + tailwind-merge), shadcn convention.
 - `src/api/client.ts` (44 lines) — `apiFetch` with `credentials: include`, `X-Requested-With` CSRF header, single refresh-and-retry on 401, redirect to `/login` on failure.
+- `GET /api/search?q=` accepts an empty query and returns suggestions; partial prefixes (e.g. `wire`) match novel/chapter titles accent-insensitively.
 
 ## 5. Patterns (SWR, state, forms)
 - Plain React hooks (`useState`/`useEffect`) + `apiFetch`; no SWR/React Query in MVP.

@@ -67,23 +67,46 @@ async def search_chapters(
     # The variant filter is composed, not passed as a nullable parameter:
     # asyncpg/PG18 cannot infer the type of ":vid" in "(:vid IS NULL OR ...)".
     params: dict[str, object] = {"lim": limit}
-    if dialect == "postgresql":
-        where = "s.tsv @@ websearch_to_tsquery('simple', unaccent(:q))"
-        params["q"] = query
-    else:
-        where = "lower(s.tsv) LIKE :pattern"
-        params["pattern"] = f"%{strip_accents(query).lower()}%"
+    clauses = ["c.active = true"]
     if variant_id is not None:
-        where += " AND v.id = :vid"
+        clauses.append("v.id = :vid")
         params["vid"] = variant_id
+
+    if query:
+        if dialect == "postgresql":
+            # Prefix + accent-insensitive title/novel matching in addition to FTS
+            # over content — "wire" now finds "Wireless_Onahole" without typing
+            # the full name. websearch_to_tsquery alone only matched whole lexemes.
+            clauses.append(
+                "(s.tsv @@ websearch_to_tsquery('simple', unaccent(:q)) "
+                "OR unaccent(c.title) ILIKE '%' || unaccent(:q) || '%' "
+                "OR unaccent(n.title) ILIKE '%' || unaccent(:q) || '%')"
+            )
+            params["q"] = query
+            order = (
+                "CASE WHEN unaccent(c.title) ILIKE unaccent(:q) || '%' THEN 0 "
+                "WHEN unaccent(n.title) ILIKE unaccent(:q) || '%' THEN 1 ELSE 2 END, "
+                "c.number, c.title"
+            )
+        else:
+            clauses.append(
+                "(lower(s.tsv) LIKE :pattern OR lower(c.title) LIKE :pattern "
+                "OR lower(n.title) LIKE :pattern)"
+            )
+            params["pattern"] = f"%{strip_accents(query).lower()}%"
+            order = "c.number, c.title"
+    else:
+        # Empty query = "gợi ý" suggestions for the command palette.
+        order = "c.id DESC"
+
     statement = text(
         "SELECT c.id, n.title, v.lang, c.title "
-        "FROM chapter_search s "
-        "JOIN chapters c ON c.id = s.chapter_id "
+        "FROM chapters c "
+        "LEFT JOIN chapter_search s ON s.chapter_id = c.id "
         "JOIN variants v ON v.id = c.variant_id "
         "JOIN novels n ON n.id = v.novel_id "
-        "WHERE " + where + " AND c.active = true "
-        "LIMIT :lim"
+        "WHERE " + " AND ".join(clauses) + " "
+        "ORDER BY " + order + " LIMIT :lim"
     )
     rows = (await session.execute(statement, params)).all()
 

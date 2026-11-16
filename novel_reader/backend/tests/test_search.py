@@ -25,9 +25,23 @@ async def test_search_finds_vietnamese_without_accents(auth_client, db_session):
     assert all(hit.lang == "vi" for hit in scoped)
 
 
-async def test_empty_query_rejected(auth_client, db_session):
+async def test_empty_query_returns_suggestions(auth_client, db_session):
+    await scan_novels(get_settings().novel_root, db_session)
+    await rebuild_search_index(db_session)
     response = await auth_client.get("/api/search", params={"q": "   "})
-    assert response.status_code in (400, 422)
+    assert response.status_code == 200
+    assert len(response.json()) > 0
+    assert all(set(hit) == {"chapter_id", "novel_title", "lang", "chapter_title", "snippet"} for hit in response.json())
+
+
+async def test_partial_prefix_search(db_session, tmp_path):
+    lang_dir = tmp_path / "Wireless Onahole" / "chapters_vi"
+    lang_dir.mkdir(parents=True)
+    (lang_dir / "Chapter_0001_First.txt").write_text("nội dung", encoding="utf-8")
+    await scan_novels(tmp_path, db_session)
+    await rebuild_search_index(db_session)
+    hits = await search_chapters(db_session, "wire")
+    assert any(hit.novel_title == "Wireless Onahole" for hit in hits)
 
 
 async def test_index_skips_unreadable_files(db_session, tmp_path):

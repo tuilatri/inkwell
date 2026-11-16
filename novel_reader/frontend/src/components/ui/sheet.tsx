@@ -13,7 +13,7 @@ export function SheetContent({ className, children, side = 'left', ...props }: R
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70" />
       <DialogPrimitive.Content
         className={cn(
-          'fixed inset-y-0 z-50 flex w-[min(88vw,22rem)] flex-col border-border bg-card shadow-2xl focus:outline-none',
+          'sheet-right-in fixed inset-y-0 z-50 flex w-[min(88vw,22rem)] flex-col border-border bg-card shadow-2xl focus:outline-none',
           side === 'left' ? 'left-0 border-r' : 'right-0 border-l',
           className,
         )}

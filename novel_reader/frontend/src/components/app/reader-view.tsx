@@ -9,7 +9,7 @@ export function ReaderView({ text, fontSize, lineHeight, className }: {
 }) {
   return (
     <article
-      className={cn('mx-auto max-w-[70ch] rounded-lg border border-border bg-card px-5 py-8 sm:px-10 sm:py-12', className)}
+      className={cn('rise-in mx-auto max-w-[70ch] rounded-lg border border-border bg-card px-5 py-8 sm:px-10 sm:py-12', className)}
       style={{ ['--reader-size' as string]: `${fontSize}px`, ['--reader-leading' as string]: String(lineHeight) }}
       data-testid="reader-view"
     >
