@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import hashlib
 import re
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Chapter, Novel, ScanLog, ScanWarning, Variant
@@ -21,6 +22,21 @@ class ScanResult:
     variants: int = 0
     chapters: int = 0
     warnings: list[ScanWarning] = field(default_factory=list)
+    skipped: bool = False
+
+
+def fingerprint(root: Path) -> str:
+    """Cheap content-root signature: relative .txt paths + mtime, no file reads."""
+    if not root.is_dir():
+        return ""
+    digest = hashlib.sha256()
+    for path in sorted(root.rglob("*.txt")):
+        if not path.is_file() or path.name.startswith(SKIP_PREFIXES):
+            continue
+        digest.update(path.relative_to(root).as_posix().encode("utf-8"))
+        digest.update(str(path.stat().st_mtime_ns).encode("ascii"))
+        digest.update(b"\0")
+    return digest.hexdigest()
 
 
 def slugify(title: str) -> str:
@@ -49,9 +65,27 @@ async def _warn(session: AsyncSession, result: ScanResult, scan_log_id: int, kin
     result.warnings.append(warning)
 
 
-async def scan_novels(root: Path, session: AsyncSession) -> ScanResult:
+async def scan_novels(root: Path, session: AsyncSession, force: bool = False) -> ScanResult:
     result = ScanResult()
-    scan_log = ScanLog(started_at=_utcnow())
+    current = fingerprint(root)
+    if not force:
+        last = (
+            await session.execute(
+                select(ScanLog)
+                .where(ScanLog.finished_at.is_not(None))
+                .order_by(ScanLog.id.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        if last is not None and last.fingerprint == current:
+            result.skipped = True
+            result.novels = int((await session.execute(select(func.count()).select_from(Novel))).scalar_one())
+            result.chapters = int(
+                (await session.execute(select(func.count()).select_from(Chapter).where(Chapter.active.is_(True)))).scalar_one()
+            )
+            return result
+
+    scan_log = ScanLog(started_at=_utcnow(), fingerprint=current)
     session.add(scan_log)
     await session.flush()
 

@@ -21,6 +21,7 @@ Load a skill only when the task matches its trigger — loading costs context.
 | Debugging (any) | `systematic-debugging` |
 | Planning a large task | `writing-plans`, `plan-writing` |
 | Frontend design/UX polish | `impeccable` |
+| Frontend components (novel_reader) | shadcn/ui + Tailwind v4 (`components/ui/`, one component per file); see `FRONTEND_MAP.md` §2–§3 |
 | PixiJS engine work | `pixijs` (router) first, then the specific `pixijs-*` skill |
 
 **Triage discipline**: skills not worth their context cost in this project go to

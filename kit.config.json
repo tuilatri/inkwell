@@ -3,15 +3,139 @@
     "name": "inkwell",
     "chatLanguage": "vi"
   },
-  "apps": [],
+  "apps": [
+    {
+      "id": "comix-downloader",
+      "path": "comix_downloader",
+      "srcPath": "comix_downloader",
+      "verify": "python -m comix_downloader.cli --help",
+      "expectedTests": null
+    },
+    {
+      "id": "backend",
+      "path": "novel_reader/backend",
+      "srcPath": "novel_reader/backend/app",
+      "verify": ".venv/Scripts/python.exe -m pytest -q",
+      "expectedTests": 35
+    },
+    {
+      "id": "frontend",
+      "path": "novel_reader/frontend",
+      "srcPath": "novel_reader/frontend/src",
+      "verify": "npx vitest run && npm run build",
+      "expectedTests": 25
+    }
+  ],
   "docPaths": {
     "aiContext": "docs/ai-context",
     "agents": "AGENTS.md",
     "agentsConfig": "docs/agents"
   },
   "skillPaths": [
-    ".claude/skills"
+    ".claude/skills",
+    ".opencode/skills"
   ],
-  "claims": [],
-  "gates": []
+  "claims": [
+    {
+      "doc": "docs/ai-context/MODULE_MAP.md",
+      "re": "^\\| `comix_downloader/` \\| 2\\.880 \\|",
+      "kind": "exists:comix_downloader"
+    },
+    {
+      "doc": "docs/ai-context/MODULE_MAP.md",
+      "re": "^\\| `novel_reader/backend/` \\|",
+      "kind": "exists:novel_reader/backend"
+    },
+    {
+      "doc": "docs/ai-context/MODULE_MAP.md",
+      "re": "^\\| `novel_reader/frontend/src/` \\|",
+      "kind": "exists:novel_reader/frontend/src"
+    },
+    {
+      "doc": "docs/ai-context/FRONTEND_MAP.md",
+      "re": "^\\| `/login`",
+      "kind": "exists:novel_reader/frontend/src/pages/Login.tsx"
+    },
+    {
+      "doc": "docs/ai-context/TESTING_GUIDE.md",
+      "re": "^\\| \\*\\*2\\*\\* \\| \\*\\*Playwright E2E tests",
+      "kind": "exists:novel_reader/frontend/tests/e2e/reader.spec.ts"
+    },
+    {
+      "doc": ".agent/rules/ROUTER.md",
+      "re": "^# ROUTER — pre-task bootstrap",
+      "kind": "exists:.agent/rules/ROUTER.md"
+    },
+    {
+      "doc": ".opencode/skills/novel-reader-backend-conventions/SKILL.md",
+      "re": "^name: novel-reader-backend-conventions",
+      "kind": "exists:.opencode/skills/novel-reader-backend-conventions/SKILL.md"
+    },
+    {
+      "doc": "docs/ai-context/MODULE_MAP.md",
+      "re": "^\\| `novel_reader/backend/app/main\\.py` \\| (\\d+) \\|",
+      "kind": "lines:novel_reader/backend/app/main.py"
+    },
+    {
+      "doc": "docs/ai-context/MODULE_MAP.md",
+      "re": "^\\| `novel_reader/frontend/src/pages/Reader\\.tsx` \\| (\\d+) \\|",
+      "kind": "lines:novel_reader/frontend/src/pages/Reader.tsx"
+    },
+    {
+      "doc": "docs/ai-context/MODULE_MAP.md",
+      "re": "^\\| `\\.opencode/skills/novel-reader-backend-conventions/SKILL\\.md` \\| (\\d+) \\|",
+      "kind": "lines:.opencode/skills/novel-reader-backend-conventions/SKILL.md"
+    },
+    {
+      "doc": "docs/ai-context/MODULE_MAP.md",
+      "re": "^\\| `docs/ai-context/FRONTEND_MAP\\.md` \\| (\\d+) \\|",
+      "kind": "lines:docs/ai-context/FRONTEND_MAP.md"
+    },
+    {
+      "doc": "docs/agents/issue-tracker-local.md",
+      "re": "^- \\*\\*Location\\*\\*: `docs/tickets/`",
+      "kind": "exists:docs/tickets"
+    },
+    {
+      "doc": "docs/agents/issue-tracker-local.md",
+      "re": "^- \\*\\*Specs\\*\\*: `docs/specs/",
+      "kind": "exists:docs/specs"
+    }
+  ],
+  "gates": [
+    {
+      "id": "docs-truth",
+      "cmd": "npm",
+      "args": ["run", "gate:node", "--", "scripts/doc-truth.mjs"],
+      "tags": ["fast"]
+    },
+    {
+      "id": "skills-integrity",
+      "cmd": "npm",
+      "args": ["run", "gate:node", "--", "scripts/check-skills.mjs"],
+      "tags": ["fast"]
+    },
+    {
+      "id": "backend-tests",
+      "cmd": "npm",
+      "args": ["run", "gate:python"],
+      "tags": ["slow"]
+    },
+    {
+      "id": "frontend-tests",
+      "cmd": "npx",
+      "args": ["vitest", "run"],
+      "cwd": "novel_reader/frontend",
+      "tags": ["slow"],
+      "requires": ["novel_reader/frontend/node_modules"]
+    },
+    {
+      "id": "frontend-build",
+      "cmd": "npm",
+      "args": ["run", "build"],
+      "cwd": "novel_reader/frontend",
+      "tags": ["slow"],
+      "requires": ["novel_reader/frontend/node_modules"]
+    }
+  ]
 }

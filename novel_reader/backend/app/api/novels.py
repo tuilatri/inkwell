@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
-from app.db.models import Chapter, Novel, Variant
+from app.db.models import AdminUser, Chapter, Novel, ReadingState, Variant
 from app.db.session import get_db
 from app.schemas import ChapterOut, NovelOut, VariantOut
 
@@ -39,7 +39,7 @@ async def list_variants(
 async def list_chapters(
     variant_id: int,
     session: AsyncSession = Depends(get_db),
-    _user=Depends(get_current_user),
+    user: AdminUser = Depends(get_current_user),
 ) -> list[ChapterOut]:
     rows = (
         await session.execute(
@@ -48,4 +48,21 @@ async def list_chapters(
             .order_by(Chapter.number.is_(None), Chapter.number, Chapter.title)
         )
     ).scalars().all()
-    return [ChapterOut(id=row.id, number=row.number, title=row.title) for row in rows]
+    visited = set(
+        (
+            await session.execute(
+                select(ReadingState.chapter_id).where(
+                    ReadingState.user_id == user.id, ReadingState.scroll_pos > 0
+                )
+            )
+        ).scalars().all()
+    )
+    result: list[ChapterOut] = []
+    for row in rows:
+        result.append(ChapterOut(
+            id=row.id,
+            number=row.number,
+            title=row.title,
+            visited=row.id in visited,
+        ))
+    return result

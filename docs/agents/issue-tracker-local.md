@@ -19,24 +19,24 @@
 
 ## Example ticket
 
-`docs/tickets/doing-T-004-add-refresh-token-rotation.md`:
+`docs/tickets/doing-T-004-incremental-novel-scan.md`:
 
 ````markdown
-# T-004 — Add refresh token rotation
+# T-004 — Incremental novel scan
 
-Spec: SPEC-auth
+Spec: SPEC-novel-scanner
 Blocks: T-005
 Blocked by: T-002
 
 ## Why
-Access tokens live 24h; a stolen token cannot be revoked.
+Startup rescans ~5.300 txt files / 90 MB, costing 40–60 s before the API is ready.
 
 ## What
-- Issue refresh token (7d) on login, store only its hash in `sessions`
-- `POST /auth/refresh` rotates the refresh token (old one invalidated)
-- Reuse of a rotated token revokes the whole session
+- Use the stored `chapters.file_mtime` to skip unchanged files in `app/services/scanner.py`
+- Keep `POST /api/admin/rescan` as the full-scan escape hatch
+- Publish measured startup time in `docs/ai-context/ARCHITECTURE.md` §7
 
 ## Done when
-- [ ] Rotation covered by tests (reuse → 401 + session revoked)
-- [ ] TESTING_GUIDE updated with the new endpoint
+- [ ] Cold start unchanged; warm start < 5 s measured
+- [ ] Backend tests still green; TESTING_GUIDE §1 updated if tests were added
 ````

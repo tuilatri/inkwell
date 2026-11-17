@@ -25,7 +25,7 @@ You are the CI engineer for this repository. Implement exactly as tasked, keep t
 ## Verify (definition of done)
 
 ```bash
-{{VERIFY_CI}}
+node scripts/verify.mjs
 ```
 
 Expected: CI green + log clean — measure for THIS repo, update `docs/ai-context/TESTING_GUIDE.md` §1 after changes.

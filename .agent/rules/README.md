@@ -5,10 +5,10 @@ repo's bootstrap/router: pre-task resource loading order, the skill auto-select
 table by task type, the workflow auto-select table by complexity (pattern of
 `AUTO_AGENT_LOADING.md` + `GEMINI.md` — see the sample at the link below).
 
-The template **ships no rules by default** — a good rule must describe YOUR repo;
-it cannot be generic. Two options:
+This repo has one active rule file: **`ROUTER.md`** (pre-task loading order + task→doc/skill map). Everything below is the upstream template guidance, kept for reference:
 
-1. **Write a minimal rule file yourself**, e.g. `.agent/rules/ROUTER.md`:
+
+1. **Write a minimal rule file yourself**, e.g. `.agent/rules/ROUTER.md` (already done here):
    - Pre-task loading order: AGENTS.md → `docs/ai-context/` (name which files to read)
    - A "task type → which doc/skill" table — 3–6 rows is enough
    - General rules (commit convention, plan location) already live in AGENTS.md —

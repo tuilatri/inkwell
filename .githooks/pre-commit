@@ -1,0 +1,5 @@
+#!/bin/sh
+# Fast harness guard — docs and skill manifest must not drift past a commit.
+# Full test gates run in CI on push/PR (see .github/workflows/ci.yml).
+set -e
+exec node scripts/verify.mjs --fast

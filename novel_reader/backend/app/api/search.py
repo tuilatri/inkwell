@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
@@ -13,13 +13,12 @@ router = APIRouter(prefix="/api", tags=["search"])
 
 @router.get("/search", response_model=list[SearchHitOut])
 async def search(
-    q: str = Query(min_length=1, max_length=200),
+    q: str = Query(default="", max_length=200),
     variant_id: int | None = None,
     session: AsyncSession = Depends(get_db),
     _user=Depends(get_current_user),
 ) -> list[SearchHitOut]:
-    if not q.strip():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="empty query")
+    # An empty query returns suggestions, used by the command palette on open.
     hits = await search_chapters(session, q.strip(), variant_id=variant_id)
     return [
         SearchHitOut(

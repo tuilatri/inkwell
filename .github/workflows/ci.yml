@@ -1,0 +1,38 @@
+name: verify
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: novel_reader/frontend/package-lock.json
+
+      - name: Backend venv + dependencies
+        working-directory: novel_reader/backend
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install --upgrade pip
+          .\.venv\Scripts\python.exe -m pip install -e ".[test]"
+
+      - name: Frontend dependencies
+        working-directory: novel_reader/frontend
+        run: npm ci
+
+      - name: Run all verify gates
+        run: node scripts/verify.mjs

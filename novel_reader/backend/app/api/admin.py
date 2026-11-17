@@ -17,7 +17,7 @@ async def rescan(
     session: AsyncSession = Depends(get_db),
     _user=Depends(get_current_user),
 ) -> ScanSummary:
-    result = await scan_novels(get_root(), session)
+    result = await scan_novels(get_root(), session, force=True)
     await rebuild_search_index(session)
     return ScanSummary(
         novels=result.novels,

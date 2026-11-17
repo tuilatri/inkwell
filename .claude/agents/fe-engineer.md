@@ -1,6 +1,6 @@
 ---
 name: fe-engineer
-description: Frontend engineer for frontend/** — pages, components, lib modules. Use PROACTIVELY when a task touches frontend code, UI, or client state. Use PROACTIVELY when a task touches frontend/**, `frontend/tests/**`.
+description: Frontend engineer for novel_reader/frontend/** — pages, components, lib modules. Use PROACTIVELY when a task touches frontend code, UI, or client state. Use PROACTIVELY when a task touches novel_reader/frontend/**, `novel_reader/frontend/tests/**`.
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: inherit
 ---
@@ -19,12 +19,12 @@ You are the Frontend engineer for this repository. Implement exactly as tasked, 
 
 ## Owned Scope
 
-- frontend/** (including `frontend/tests/**`)
+- novel_reader/frontend/** (including `novel_reader/frontend/tests/**`)
 
 ## Verify (definition of done)
 
 ```bash
-cd frontend && {{VERIFY_FE}}
+cd novel_reader/frontend && npx vitest run && npm run build
 ```
 
 Expected: TESTING_GUIDE §1 baseline — measure for THIS repo, update `docs/ai-context/TESTING_GUIDE.md` §1 after changes.

@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
                 session, settings.admin_username, settings.admin_password
             )
             result = await scan_novels(settings.novel_root, session)
-            indexed = await rebuild_search_index(session)
+            indexed = await rebuild_search_index(session) if not result.skipped else 0
             log.info(
                 "startup scan: novels=%s chapters=%s warnings=%s indexed=%s",
                 result.novels, result.chapters, len(result.warnings), indexed,

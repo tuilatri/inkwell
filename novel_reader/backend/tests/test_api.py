@@ -5,6 +5,7 @@ from sqlalchemy import select
 from app.core.config import get_settings
 from app.db.models import Chapter, Novel, ScanWarning
 from app.services.scanner import scan_novels
+from app.services.search_index import rebuild_search_index
 
 
 def get_root():
@@ -76,6 +77,27 @@ async def test_progress_round_trip(auth_client, db_session):
     assert saved.status_code == 200
     loaded = await auth_client.get(f"/api/progress/{chapter.id}")
     assert loaded.json()["scroll_pos"] == 0.42
+
+
+async def test_chapter_list_has_visited_flag(auth_client, db_session):
+    await scan_novels(get_settings().novel_root, db_session)
+    await rebuild_search_index(db_session)
+    novel = (await db_session.execute(select(Novel))).scalar_one()
+    variants = (await auth_client.get(f"/api/novels/{novel.id}/variants")).json()
+    vi = next(item for item in variants if item["lang"] == "vi")
+    path = f"/api/variants/{vi['id']}/chapters"
+    chapters = (await auth_client.get(path)).json()
+    assert chapters
+    assert all(set(("id", "number", "title", "visited")) <= set(item) for item in chapters)
+
+    target = chapters[0]
+    await auth_client.put(
+        "/api/progress",
+        json={"chapter_id": target["id"], "scroll_pos": 120.0},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+    updated = (await auth_client.get(path)).json()
+    assert next(item for item in updated if item["id"] == target["id"])["visited"] is True
 
 
 async def test_rescan(auth_client, db_session):

@@ -1,6 +1,6 @@
 ---
 name: mobile-engineer
-description: Mobile app engineer for mobile/**. Use PROACTIVELY when a task touches mobile code. Use PROACTIVELY when a task touches mobile/**.
+description: Mobile app engineer for novel_reader/frontend/ (mobile viewport only). Use PROACTIVELY when a task touches mobile code. Use PROACTIVELY when a task touches novel_reader/frontend/ (mobile viewport only).
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: inherit
 ---
@@ -19,12 +19,12 @@ You are the Mobile engineer for this repository. Implement exactly as tasked, ke
 
 ## Owned Scope
 
-- mobile/**
+- novel_reader/frontend/ (mobile viewport only)
 
 ## Verify (definition of done)
 
 ```bash
-cd mobile && {{VERIFY_MOBILE}}
+N/A — no native mobile app; run Playwright mobile viewport E2E in novel_reader/frontend
 ```
 
 Expected: TESTING_GUIDE §1 baseline — measure for THIS repo, update `docs/ai-context/TESTING_GUIDE.md` §1 after changes.
