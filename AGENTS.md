@@ -47,7 +47,7 @@ For every **non-trivial** request, follow this loop in order:
 2. **Plan first** — before any edit, create `implementation_plan.md` + `task.md` in `drafts/plans/<MMDDYY>_<n>_<status>/` with immutable IDs, exact files/interfaces and verification steps. Then **STOP** in the same turn — do not implement yet. Wait for the owner's approval.
 3. **Execute after approval** — implement exactly the approved plan; surface any deviation before making it. When executing a ticket from `docs/tickets/`, rename `open-…` → `doing-…` at start and `doing-…` → `done-…` only after verification is green; link the plan to the ticket via a `Ticket:` line. **State lives in the filename — never change it by editing the file body.**
 4. **Verify & repair** — run the gates relevant to the scope (pytest / vitest / build / Playwright E2E / `node scripts/verify.mjs` / `node scripts/doc-truth.mjs`). On any failure, fix until all green; quote real command output — never claim success from memory.
-5. **Stop clean** — when verification is green, stop. **Do NOT commit or push unless the owner explicitly asks for commit/push in that same turn.**
+5. **Stop clean** — when verification is green, stop. **Do NOT commit or push unless the owner explicitly asks for commit/push in that same turn.** A push/PR/merge request does **NOT** imply commit permission — commit requires the owner's explicit word (e.g. "commit") in that turn. If changes are uncommitted when push is requested, stop and ask for commit permission instead of committing.
 6. **Ambiguity guard** — if a casual request could be trivial or non-trivial, prefer planning. The owner can force it with "plan" / "làm theo quy trình", or force immediate action with "làm luôn".
 
 # Commit Message Convention
@@ -71,7 +71,7 @@ For every **non-trivial** request, follow this loop in order:
 6. **Test gate:** run the project's verify gate (declared in Quick Facts). Current counts live in `docs/ai-context/TESTING_GUIDE.md` §1 — measure, never guess.
 7. **Never commit secrets.** `.env`, `.env.*`, credential files — gitignored. Never quote values.
 8. **Never commit build output / dependencies / runtime data.**
-9. **No implicit commit/push** — only when the owner explicitly asks in the current turn (see Workflow Contract).
+9. **No implicit commit/push** — only when the owner explicitly asks in the current turn (see Workflow Contract step 5). Push/PR/merge ≠ commit permission: if changes are uncommitted, ask first.
 
 ---
 
