@@ -34,6 +34,6 @@ See `API_MAP.md` — 14 endpoints, all auth-protected, CSRF on mutations.
 - Comix.to scraping (separate app, disk output into `drafts/Novel/`), Google Fonts (Newsreader + IBM Plex Sans), GitNexus MCP tools (tool-managed, never vendored), OpenCode/Claude skills from `.claude/skills` + `.opencode/skills`.
 
 ## 7. Known Limits & Constraints
-- Startup scans the full corpus (~5.300 txt / 90 MB) — 40–60 s; incremental scan is deferred.
+- Startup uses a cheap path+mtime fingerprint: warm start measured **0.36 s** (skip upsert + FTS rebuild); cold scan itself 1.05 s, but a first-ever FTS rebuild still reads the full 90 MB (~40 s). `POST /api/admin/rescan` forces both.
 - Anti-scrape/anti-extension is best-effort (auth + headers); for public deployment use Tailscale/IP allowlist.
 - Single-admin design; no Docker yet; no light theme; reading position is per chapter (pixel offset).

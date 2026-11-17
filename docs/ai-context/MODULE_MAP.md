@@ -10,13 +10,13 @@
 |---|---:|---|
 | `comix_downloader/` | 2.880 | Imported Comix.to scraper (CLI, GUI, pagination, detectors, tests). Source: `D:\bato-downloader\src\comix_downloader`. Runtime data `.chrome_profile/` excluded. |
 
-## novel_reader — FastAPI + React/Vite · 3.288 lines · 91 files
+## novel_reader — FastAPI + React/Vite · 3.369 lines · 92 files
 
-### `novel_reader/backend/` — 1.521 lines
+### `novel_reader/backend/` — 1.602 lines
 
 | File | Lines | Role |
 |---|---:|---|
-| `novel_reader/backend/` | 1.521 | Auth (JWT cookies + argon2), filesystem scanner, name-only read APIs, Postgres FTS, Alembic migration, pytest suite. |
+| `novel_reader/backend/` | 1.602 | Auth (JWT cookies + argon2), incremental fingerprint scanner, name-only read APIs, Postgres FTS, Alembic migrations, pytest suite. |
 
 ### `novel_reader/frontend/src/` — 1.767 lines
 

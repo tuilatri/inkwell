@@ -20,7 +20,7 @@
 | PUT | `/api/progress` | Access cookie + CSRF | — | `{chapter_id, scroll_pos}` → upsert reading state |
 | GET | `/api/progress/{chapter_id}` | Access cookie | — | `{chapter_id, scroll_pos}` (0 if absent) |
 | GET | `/api/search?q=&variant_id=` | Access cookie | — | `SearchHit[]`; empty `q` = suggestions; accent-insensitive prefix |
-| POST | `/api/admin/rescan` | Access cookie + CSRF | — | Rescan `drafts/Novel/` + rebuild FTS index |
+| POST | `/api/admin/rescan` | Access cookie + CSRF | — | Force a full rescan of `drafts/Novel/` + rebuild FTS (ignores the warm-start shortcut) |
 
 ## Conventions
 - Rate limit storage: in-memory dict `_FAILED` in `api/auth.py` (login only, resets on restart — no Redis in MVP).

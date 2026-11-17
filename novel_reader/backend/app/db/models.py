@@ -94,6 +94,7 @@ class ScanLog(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     novels_upserted: Mapped[int] = mapped_column(Integer, default=0)
     chapters_upserted: Mapped[int] = mapped_column(Integer, default=0)
+    fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
 
 class ScanWarning(Base):

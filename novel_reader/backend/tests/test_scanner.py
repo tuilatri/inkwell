@@ -1,6 +1,8 @@
+import os
+
 from sqlalchemy import select
 
-from app.db.models import Chapter
+from app.db.models import Chapter, ScanLog
 from app.services.scanner import ScanResult, parse_chapter, scan_novels, slugify
 
 
@@ -16,6 +18,47 @@ def test_parse_chapter_both_layouts(tmp_path):
 
 def test_slugify_vietnamese():
     assert slugify("Solo Farming In The Tower") == "solo-farming-in-the-tower"
+
+
+async def test_unchanged_tree_skips_second_scan(db_session, tmp_path):
+    lang = tmp_path / "Novel" / "chapters_vi"
+    lang.mkdir(parents=True)
+    (lang / "Chapter_0001_A.txt").write_text("nội dung", encoding="utf-8")
+
+    first = await scan_novels(tmp_path, db_session)
+    assert first.skipped is False
+    second = await scan_novels(tmp_path, db_session)
+    assert second.skipped is True
+    assert second.chapters == first.chapters
+    logs = (await db_session.execute(select(ScanLog))).scalars().all()
+    assert len(logs) == 1  # a skip writes no new scan_log
+
+
+async def test_touch_or_add_invalidates_fingerprint(db_session, tmp_path):
+    lang = tmp_path / "Novel" / "chapters_vi"
+    lang.mkdir(parents=True)
+    chapter = lang / "Chapter_0001_A.txt"
+    chapter.write_text("nội dung", encoding="utf-8")
+    await scan_novels(tmp_path, db_session)
+
+    stat = chapter.stat()
+    os.utime(chapter, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1_000_000_000))
+    touched = await scan_novels(tmp_path, db_session)
+    assert touched.skipped is False
+
+    (lang / "Chapter_0002_B.txt").write_text("thêm", encoding="utf-8")
+    added = await scan_novels(tmp_path, db_session)
+    assert added.skipped is False
+    assert added.chapters == 2
+
+
+async def test_force_rescans_even_when_unchanged(db_session, tmp_path):
+    lang = tmp_path / "Novel" / "chapters_vi"
+    lang.mkdir(parents=True)
+    (lang / "Chapter_0001_A.txt").write_text("nội dung", encoding="utf-8")
+    await scan_novels(tmp_path, db_session)
+    forced = await scan_novels(tmp_path, db_session, force=True)
+    assert forced.skipped is False
 
 
 async def test_scan_mixed_layout_and_skip_rules(db_session, tmp_path):
