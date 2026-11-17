@@ -11,10 +11,14 @@ import { MobileChapterSheet } from '@/components/app/mobile-chapter-sheet'
 import { ReaderToolbar } from '@/components/app/reader-toolbar'
 import { ReaderView } from '@/components/app/reader-view'
 import { SearchCommand } from '@/components/app/search-command'
-import { ReadingProgress } from '@/components/app/reading-progress'
 import { VirtualChapterList } from '@/components/app/virtual-chapter-list'
 import { Spinner } from '@/components/ui/spinner'
 import type { Chapter, Novel, Progress, Variant } from '@/types'
+
+function scrollPercent(top: number): number {
+  const max = document.documentElement.scrollHeight - window.innerHeight
+  return max > 0 ? Math.min(100, Math.max(0, (top / max) * 100)) : 0
+}
 
 async function loadChapters(chapterId: number): Promise<Chapter[]> {
   const novels = await apiFetch<Novel[]>('/api/novels')
@@ -39,8 +43,8 @@ export default function Reader() {
   const [lineHeight, setLineHeight] = useState(1.9)
   const [filter, setFilter] = useState('')
   const [listOpen, setListOpen] = useState(false)
-  const [ready, setReady] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   const pendingRestore = useRef<number | null>(null)
   const restored = useRef(false)
@@ -65,7 +69,6 @@ export default function Reader() {
     restored.current = false
     suppressSave.current = true
     toasted.current = false
-    setReady(false)
     pendingRestore.current = null
     setChapter(null)
     setText('')
@@ -89,14 +92,15 @@ export default function Reader() {
     restored.current = true
     requestAnimationFrame(() => {
       window.scrollTo({ top: target })
+      setProgress(scrollPercent(target))
       window.setTimeout(() => { suppressSave.current = false }, 300)
-      setReady(true)
     })
   }, [text])
 
   useEffect(() => {
     function onScroll() {
       if (!restored.current || suppressSave.current || !chapterId) return
+      setProgress(scrollPercent(window.scrollY))
       window.clearTimeout(timer.current)
       timer.current = window.setTimeout(() => {
         void apiFetch('/api/progress', {
@@ -123,6 +127,9 @@ export default function Reader() {
       <AppHeader onOpenSearch={() => setSearchOpen(true)} />
       <ReaderToolbar
         chapter={chapter}
+        progress={progress}
+        onPrev={prev ? () => navigate(`/read/${prev.id}`) : undefined}
+        onNext={next ? () => navigate(`/read/${next.id}`) : undefined}
         fontSize={fontSize}
         lineHeight={lineHeight}
         onFontSize={setFontSize}
@@ -131,7 +138,6 @@ export default function Reader() {
         onToggleList={() => setListOpen((value) => !value)}
         onSearch={() => setSearchOpen(true)}
       />
-      <ReadingProgress enabled={ready} />
       {error && <div className="mx-auto max-w-6xl px-4 pt-4"><ErrorState message={error} /></div>}
       <div className="mx-auto grid max-w-6xl gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-4">

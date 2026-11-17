@@ -14,7 +14,7 @@
 | GET | `/api/auth/me` | Access cookie | — | Current admin `{id, username}` |
 | GET | `/api/novels` | Access cookie | — | `[{id, title}]` — names only, no covers |
 | GET | `/api/novels/{id}/variants` | Access cookie | — | `[{id, lang}]` — `vi` / `en` |
-| GET | `/api/variants/{id}/chapters` | Access cookie | — | `[{id, number, title}]` — active chapters only, ordered |
+| GET | `/api/variants/{id}/chapters` | Access cookie | — | `[{id, number, title, visited}]` — active chapters, ordered; names only (no content), `visited` = `reading_state.scroll_pos > 0` |
 | GET | `/api/chapters/{id}` | Access cookie | — | Chapter metadata; 404 if soft-deleted |
 | GET | `/api/chapters/{id}/content` | Access cookie | — | `text/plain; charset=utf-8` streamed from `drafts/Novel/` |
 | PUT | `/api/progress` | Access cookie + CSRF | — | `{chapter_id, scroll_pos}` → upsert reading state |

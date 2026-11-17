@@ -1,23 +1,33 @@
-import { ArrowLeft, List, Minus, Plus, Search } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, List, Minus, Plus, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Chapter } from '@/types'
 
-export function ReaderToolbar({ chapter, fontSize, lineHeight, onFontSize, onLineHeight, onBack, onToggleList, onSearch }: {
+export function ReaderToolbar({ chapter, fontSize, lineHeight, progress, onFontSize, onLineHeight, onBack, onPrev, onNext, onToggleList, onSearch }: {
   chapter: Chapter | null
   fontSize: number
   lineHeight: number
+  progress: number
   onFontSize: (value: number) => void
   onLineHeight: (value: number) => void
   onBack: () => void
+  onPrev?: () => void
+  onNext?: () => void
   onToggleList: () => void
   onSearch: () => void
 }) {
   return (
-    <div className="sticky top-16 z-20 flex flex-wrap items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+    <div className="sticky top-16 z-20 flex flex-wrap items-center gap-2 border-b border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:gap-3 sm:px-6 relative">
       <Button variant="ghost" size="icon" onClick={onBack} aria-label="Quay lại">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+      </Button>
+      <Button variant="ghost" size="icon" onClick={onPrev} disabled={!onPrev} aria-label="Chương trước">
+        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+      </Button>
+      <Button variant="ghost" size="icon" onClick={onNext} disabled={!onNext} aria-label="Chương sau">
+        <ChevronRight className="h-4 w-4" aria-hidden="true" />
       </Button>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{chapter ? `${chapter.number ?? ''} ${chapter.title}` : 'Đang tải…'}</p>
@@ -45,6 +55,9 @@ export function ReaderToolbar({ chapter, fontSize, lineHeight, onFontSize, onLin
         <List className="h-4 w-4 sm:mr-2" aria-hidden="true" />
         <span className="hidden sm:inline">Chương</span>
       </Button>
+      <div className="absolute inset-x-0 bottom-0" aria-label="Tiến độ đọc">
+        <Progress value={progress} className="rounded-none" />
+      </div>
     </div>
   )
 }

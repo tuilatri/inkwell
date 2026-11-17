@@ -32,6 +32,7 @@ class ChapterOut(BaseModel):
     id: int
     number: int | None
     title: str
+    visited: bool = False
 
 
 class ProgressIn(BaseModel):

@@ -10,27 +10,27 @@
 |---|---:|---|
 | `comix_downloader/` | 2.880 | Imported Comix.to scraper (CLI, GUI, pagination, detectors, tests). Source: `D:\bato-downloader\src\comix_downloader`. Runtime data `.chrome_profile/` excluded. |
 
-## novel_reader — FastAPI + React/Vite · 3.146 lines · 91 files
+## novel_reader — FastAPI + React/Vite · 3.261 lines · 91 files
 
-### `novel_reader/backend/` — 1.484 lines
-
-| File | Lines | Role |
-|---|---:|---|
-| `novel_reader/backend/` | 1.484 | Auth (JWT cookies + argon2), filesystem scanner, read APIs, Postgres FTS, Alembic migration, pytest suite. |
-
-### `novel_reader/frontend/src/` — 1.662 lines
+### `novel_reader/backend/` — 1.521 lines
 
 | File | Lines | Role |
 |---|---:|---|
-| `novel_reader/frontend/src/` | 1.662 | shadcn/ui (Radix + Tailwind v4) dark-theme SPA: login, library, virtualized chapter list, reader, EN/VI tabs, progress, search, Playwright E2E. |
+| `novel_reader/backend/` | 1.521 | Auth (JWT cookies + argon2), filesystem scanner, name-only read APIs, Postgres FTS, Alembic migration, pytest suite. |
+
+### `novel_reader/frontend/src/` — 1.740 lines
+
+| File | Lines | Role |
+|---|---:|---|
+| `novel_reader/frontend/src/` | 1.740 | shadcn/ui (Radix + Tailwind v4) dark-theme SPA: login with password toggle, library TOC (names only, one horizontal scroll, bookmark), reader with top nav + fused progress, EN/VI tabs, search, Playwright E2E. |
 
 ## Pinned file sizes (doc-truth `lines:` claims — all git-listed files, non-empty lines)
 | File | Non-empty lines |
 |---|---:|
 | `novel_reader/backend/app/main.py` | 68 |
-| `novel_reader/frontend/src/pages/Reader.tsx` | 154 |
+| `novel_reader/frontend/src/pages/Reader.tsx` | 159 |
 | `.opencode/skills/novel-reader-backend-conventions/SKILL.md` | 14 |
-| `docs/ai-context/FRONTEND_MAP.md` | 29 |
+| `docs/ai-context/FRONTEND_MAP.md` | 30 |
 
 ## Conventions
 - Line counts: non-empty source lines as defined in the header; dots are thousands separators ("5.670" = 5670).

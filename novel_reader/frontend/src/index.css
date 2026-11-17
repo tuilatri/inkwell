@@ -89,6 +89,9 @@ button:disabled { cursor: not-allowed; }
 ::-webkit-scrollbar-track { background: var(--background); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+/* The junction of vertical + horizontal scrollbars otherwise renders white. */
+::-webkit-scrollbar-corner { background: var(--background); }
+html { scrollbar-color: var(--border) var(--background); }
 
 input::placeholder, textarea::placeholder { color: var(--muted-foreground); opacity: 1; }
 

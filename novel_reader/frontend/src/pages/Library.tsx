@@ -71,7 +71,7 @@ export default function Library() {
   return (
     <div className="min-h-svh">
       <AppHeader onOpenSearch={() => setSearchOpen(true)} />
-      <main className="mx-auto grid max-w-6xl gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      <main className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <section className="space-y-4">
           <div>
             <Typography variant="heading" as="h1">Thư viện</Typography>
@@ -91,7 +91,7 @@ export default function Library() {
           )}
         </section>
 
-        <section className="space-y-4">
+        <section className="min-w-0 space-y-4">
           {selected ? (
             <>
               <div className="flex flex-wrap items-center justify-between gap-3">

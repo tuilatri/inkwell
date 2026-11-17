@@ -35,4 +35,7 @@ cmdk's input carries `role="combobox"`, so the generic combobox outline rule (sp
 ## 11. `asChild` children must forward refs (Button!)
 The account dropdown appeared to open but its content sat at `translate(0, -200%)` off-screen. Root cause: our `Button` was a plain function component, so Radix `Slot` (via `DropdownMenuTrigger asChild`) could not attach a ref to the DOM button → Popper had no anchor and never positioned the menu. Fix: `React.forwardRef<HTMLButtonElement, ButtonProps>` on `Button`. Secondary: don't wrap a `DropdownMenu` root in `TooltipTrigger asChild` — keep Tooltip inside the menu with the trigger button as the `asChild` child. Verify with a real browser: `toBeVisible()` passes for off-screen portals; assert the menu's bounding box `y > 0`.
 
-## 12.
+## 12. `getByLabel` substring collisions and zero-height virtualizers
+Adding `aria-label="Hiện mật khẩu"` made `getByLabel('Mật khẩu')` match both the input and the toggle in E2E — use `getByLabel('Mật khẩu', { exact: true })`. Also, `useVirtualizer` reports zero rows in jsdom/hidden panels; render a bounded first-page fallback (≤12 rows) so rows are never blank while keeping DOM bounded.
+
+## 13.

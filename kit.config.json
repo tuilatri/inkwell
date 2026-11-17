@@ -16,14 +16,14 @@
       "path": "novel_reader/backend",
       "srcPath": "novel_reader/backend/app",
       "verify": ".venv/Scripts/python.exe -m pytest -q",
-      "expectedTests": 31
+      "expectedTests": 32
     },
     {
       "id": "frontend",
       "path": "novel_reader/frontend",
       "srcPath": "novel_reader/frontend/src",
       "verify": "npx vitest run && npm run build",
-      "expectedTests": 22
+      "expectedTests": 24
     }
   ],
   "docPaths": {

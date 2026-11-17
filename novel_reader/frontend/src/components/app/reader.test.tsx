@@ -33,4 +33,22 @@ describe('Reader redesign', () => {
     expect(onNext).toHaveBeenCalledTimes(1)
     expect(onPrev).toHaveBeenCalledTimes(1)
   })
+
+  it('uses one horizontal scrollport, truncates names and pins the bookmark', () => {
+    const chapters: Chapter[] = [{
+      id: 1,
+      number: 624,
+      title: 'Chương 624 - Ngoại truyện - Đoạn kết quả rất dài không bị cắt',
+      visited: true,
+    }]
+    render(<VirtualChapterList chapters={chapters} onSelect={() => undefined} />)
+    const list = screen.getByTestId('chapter-list')
+    expect(list).toHaveClass('overflow-auto')
+    expect(list.querySelector('.min-w-\\[46rem\\]')).not.toBeNull() // one wide inner surface
+
+    const row = screen.getByTestId('chapter-row-1')
+    expect(row).not.toHaveClass('overflow-x-auto')
+    expect(screen.getByText(chapters[0].title)).toHaveClass('truncate')
+    expect(screen.getByRole('img', { name: 'Đã đọc' })).toHaveClass('sticky', 'fill-accent')
+  })
 })
