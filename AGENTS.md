@@ -22,7 +22,7 @@
 3. **Read `docs/ai-context/KNOWN_TRAPS.md`** — avoid known pitfalls
 4. **Check the Doc Trigger table** — read the matching doc files. Declare it in the first line of your reply.
 5. **Before EVERY edit** — run impact analysis on the target symbol
-6. **Large task (≥3 files, ≥5 changes)** — create a hierarchical plan
+6. **Large task (≥3 files, ≥5 changes)** — create a hierarchical plan (see Workflow Contract; plan-first applies to all non-trivial work)
 7. **Before committing** — run detect_changes() to confirm scope
 8. 🔴 **Tasks must have immutable IDs** (`P2-9`, `PR #7`) — never "item N"
 
@@ -31,6 +31,17 @@
 # Plan & Task Documents
 
 **MANDATORY**: create `implementation_plan.md` + `task.md` in `drafts/plans/<MMDDYY>_<n>_<status>/`.
+
+# Workflow Contract — owner-approved 2026-11-17
+
+For every **non-trivial** request, follow this loop in order:
+
+1. **Classify** — any request that creates/changes code, config, docs, skills, or touches ≥3 files is non-trivial. Exempt: questions, read-only inspection/reports, and a clearly labelled one-line typo fix when the owner says "làm luôn".
+2. **Plan first** — before any edit, create `implementation_plan.md` + `task.md` in `drafts/plans/<MMDDYY>_<n>_<status>/` with immutable IDs, exact files/interfaces and verification steps. Then **STOP** in the same turn — do not implement yet. Wait for the owner's approval.
+3. **Execute after approval** — implement exactly the approved plan; surface any deviation before making it.
+4. **Verify & repair** — run the gates relevant to the scope (pytest / vitest / build / Playwright E2E / `node scripts/verify.mjs` / `node scripts/doc-truth.mjs`). On any failure, fix until all green; quote real command output — never claim success from memory.
+5. **Stop clean** — when verification is green, stop. **Do NOT commit or push unless the owner explicitly asks for commit/push in that same turn.**
+6. **Ambiguity guard** — if a casual request could be trivial or non-trivial, prefer planning. The owner can force it with "plan" / "làm theo quy trình", or force immediate action with "làm luôn".
 
 # Commit Message Convention
 
@@ -53,6 +64,7 @@
 6. **Test gate:** run the project's verify gate (declared in Quick Facts). Current counts live in `docs/ai-context/TESTING_GUIDE.md` §1 — measure, never guess.
 7. **Never commit secrets.** `.env`, `.env.*`, credential files — gitignored. Never quote values.
 8. **Never commit build output / dependencies / runtime data.**
+9. **No implicit commit/push** — only when the owner explicitly asks in the current turn (see Workflow Contract).
 
 ---
 
