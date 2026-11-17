@@ -10,7 +10,7 @@
 ## Patterns
 - Library: names-only cards, skeleton loading, actionable empty/error states, EN/VI tabs with VI default; chapter TOC shows **names only** (no content/snippet), one horizontal scrollbar for the whole list, `…` overflow on long names, sticky bookmark marker for already-read chapters.
 - Login: password field has an Eye/EyeOff toggle with `aria-label` + `aria-pressed`.
-- Reader: prev/next buttons in the sticky toolbar (bottom row kept), progress bar fused to that toolbar so it never scrolls away; virtualized chapter list (bounded DOM for 1.700+ rows, zero-height fallback), font/line-height sliders, reading position saved with debounce, mobile `Sheet`.
+- Reader: prev/next buttons in the sticky toolbar (bottom row kept), progress bar fused to that toolbar so it never scrolls away; virtualized chapter list (bounded DOM for 1.700+ rows, zero-height fallback) that auto-locates and highlights the current chapter when opened (`scrollToIndex` + `aria-current`), font/line-height sliders, reading position saved with debounce, mobile `Sheet`.
 - Predictive search: suggestions on open, 180 ms debounce, accent-insensitive prefix, highlighted matches, spinner; empty state only after a real miss.
 - Affordances: pointer cursor on interactive elements, focus ring on buttons/links/tabs, border-only focus on inputs, `focus-within:border-accent` on the palette wrapper.
 - Motion: overlay fade, dialog scale (independent `scale` property), sheet slide, card lift, content rise; `prefers-reduced-motion` disables all.

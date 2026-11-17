@@ -4,7 +4,7 @@
 
 | **32** | **collected pytest items** (backend, project venv) |
 |---|---|
-| **24** | **Vitest tests** (frontend components) |
+| **25** | **Vitest tests** (frontend components) |
 | **2** | **Playwright E2E tests** (full browser flow) |
 
 Measured 2026-11-17; numbers use dot as thousands separator when ≥1000.

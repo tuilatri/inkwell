@@ -76,10 +76,17 @@ test.describe('Inkwell Novel Reader flow', () => {
     await page.getByRole('button', { name: 'Đăng nhập' }).click()
     await expect(page.getByRole('heading', { name: 'Thư viện' })).toBeVisible({ timeout: 180_000 })
     await page.locator('button:has-text("Mở truyện")').first().click()
-    await page.getByTestId('chapter-list').getByRole('button').first().click()
+    await page.getByTestId('chapter-list').getByRole('button').nth(4).click()
     await page.getByRole('button', { name: 'Danh sách chương' }).click()
     const list = page.getByRole('dialog', { name: 'Danh sách chương' }).getByTestId('chapter-list')
     await expect(list).toBeVisible()
+    const active = list.locator('[aria-current="location"]')
+    await expect(active).toBeVisible()
+    const [activeBox, listBox] = [await active.boundingBox(), await list.boundingBox()]
+    expect(
+      activeBox && listBox && activeBox.y >= listBox.y && activeBox.y <= listBox.y + listBox.height,
+    ).toBeTruthy()
+    await page.screenshot({ path: 'test-results/active-chapter.png' })
     await list.evaluate((el) => { el.scrollTop = 400; el.scrollLeft = 200 })
     await page.waitForTimeout(200)
     await page.screenshot({ path: 'test-results/chapter-list-mobile.png' })

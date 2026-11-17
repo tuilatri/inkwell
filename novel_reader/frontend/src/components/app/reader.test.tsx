@@ -24,6 +24,13 @@ describe('Reader redesign', () => {
     expect(screen.getByText('Chương 1 nội dung')).toHaveClass('font-serif')
   })
 
+  it('marks the active chapter for the reader list', () => {
+    render(<VirtualChapterList chapters={many} activeId={5} onSelect={() => undefined} />)
+    const active = screen.getByTestId('chapter-row-5')
+    expect(active).toHaveAttribute('aria-current', 'location')
+    expect(active).toHaveClass('bg-accent/10', 'font-semibold')
+  })
+
   it('maps J/K and arrow keys to navigation callbacks', () => {
     const onPrev = vi.fn()
     const onNext = vi.fn()

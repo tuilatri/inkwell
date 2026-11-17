@@ -149,10 +149,10 @@ export default function Reader() {
         </div>
         <aside className="hidden space-y-3 lg:block">
           <ChapterFilter value={filter} onChange={setFilter} />
-          <VirtualChapterList chapters={chapters} filter={filter} onSelect={(id) => navigate(`/read/${id}`)} className="h-[calc(100vh-9rem)]" />
+          <VirtualChapterList chapters={chapters} filter={filter} activeId={chapter?.id ?? (chapterId ? Number(chapterId) : undefined)} onSelect={(id) => navigate(`/read/${id}`)} className="h-[calc(100vh-9rem)]" />
         </aside>
       </div>
-      <MobileChapterSheet chapters={chapters} filter={filter} onFilter={setFilter} onSelect={(id) => { setListOpen(false); navigate(`/read/${id}`) }} open={listOpen} onOpenChange={setListOpen} />
+      <MobileChapterSheet chapters={chapters} filter={filter} onFilter={setFilter} activeId={chapter?.id ?? (chapterId ? Number(chapterId) : undefined)} onSelect={(id) => { setListOpen(false); navigate(`/read/${id}`) }} open={listOpen} onOpenChange={setListOpen} />
       <KeyboardShortcuts
         onPrev={() => prev && navigate(`/read/${prev.id}`)}
         onNext={() => next && navigate(`/read/${next.id}`)}

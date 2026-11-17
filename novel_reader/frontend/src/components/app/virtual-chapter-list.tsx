@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Bookmark } from 'lucide-react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { cn } from '@/lib/utils'
@@ -14,10 +14,11 @@ export function filterChapters(chapters: Chapter[], filter: string): Chapter[] {
   )
 }
 
-export function VirtualChapterList({ chapters, filter = '', onSelect, className }: {
+export function VirtualChapterList({ chapters, filter = '', onSelect, activeId, className }: {
   chapters: Chapter[]
   filter?: string
   onSelect: (id: number) => void
+  activeId?: number
   className?: string
 }) {
   const parentRef = useRef<HTMLDivElement>(null)
@@ -29,6 +30,16 @@ export function VirtualChapterList({ chapters, filter = '', onSelect, className 
     estimateSize: () => 52,
     overscan: 8,
   })
+
+  // Reveal the chapter currently being read when the list mounts (e.g. the
+  // mobile Sheet opens) or when the reader navigates to another chapter.
+  useEffect(() => {
+    if (activeId == null || items.length === 0) return
+    const index = items.findIndex((chapter) => chapter.id === activeId)
+    if (index < 0) return // filtered out — nothing to locate
+    const frame = requestAnimationFrame(() => virtualizer.scrollToIndex(index, { align: 'center' }))
+    return () => cancelAnimationFrame(frame)
+  }, [activeId, items, virtualizer])
 
   const measured = virtualizer.getVirtualItems()
   // Zero-height containers (e.g. jsdom or a hidden panel) report no virtual
@@ -51,13 +62,19 @@ export function VirtualChapterList({ chapters, filter = '', onSelect, className 
           className="relative w-full min-w-[46rem]"
           style={{ height: Math.max(virtualizer.getTotalSize(), rows.length * 52) }}
         >
-          {rows.map(({ chapter, start, size: rowSize }) => (
+          {rows.map(({ chapter, start, size: rowSize }) => {
+            const active = chapter.id === activeId
+            return (
             <button
               key={chapter.id}
               type="button"
               onClick={() => onSelect(chapter.id)}
               data-testid={`chapter-row-${chapter.id}`}
-              className="absolute left-0 top-0 flex w-full items-center gap-3 border-b border-border/60 px-4 text-left text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+              aria-current={active ? 'location' : undefined}
+              className={cn(
+                'absolute left-0 top-0 flex w-full items-center gap-3 border-b border-border/60 px-4 text-left text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+                active && 'bg-accent/10 font-semibold text-accent',
+              )}
               style={{ height: rowSize, transform: `translateY(${start}px)` }}
             >
               <span className="tabular w-12 shrink-0 text-muted-foreground">{chapter.number ?? '—'}</span>
@@ -71,7 +88,8 @@ export function VirtualChapterList({ chapters, filter = '', onSelect, className 
                 )}
               />
             </button>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

@@ -23,7 +23,7 @@
       "path": "novel_reader/frontend",
       "srcPath": "novel_reader/frontend/src",
       "verify": "npx vitest run && npm run build",
-      "expectedTests": 24
+      "expectedTests": 25
     }
   ],
   "docPaths": {

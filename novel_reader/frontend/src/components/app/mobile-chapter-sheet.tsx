@@ -2,11 +2,12 @@ import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { VirtualChapterList } from '@/components/app/virtual-chapter-list'
 import type { Chapter } from '@/types'
 
-export function MobileChapterSheet({ chapters, filter, onFilter, onSelect, open, onOpenChange }: {
+export function MobileChapterSheet({ chapters, filter, onFilter, onSelect, activeId, open, onOpenChange }: {
   chapters: Chapter[]
   filter: string
   onFilter: (value: string) => void
   onSelect: (id: number) => void
+  activeId?: number
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) {
@@ -23,7 +24,7 @@ export function MobileChapterSheet({ chapters, filter, onFilter, onSelect, open,
             className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
           />
         </div>
-        <VirtualChapterList chapters={chapters} filter={filter} onSelect={onSelect} className="m-4 h-[calc(100vh-9rem)]" />
+        <VirtualChapterList chapters={chapters} filter={filter} onSelect={onSelect} activeId={activeId} className="m-4 h-[calc(100vh-9rem)]" />
       </SheetContent>
     </Sheet>
   )
