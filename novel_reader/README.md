@@ -49,9 +49,24 @@ On startup, if `admin_users` is empty, `ADMIN_USERNAME`/`ADMIN_PASSWORD` from `.
 ## Tests
 
 ```
-cd backend && pytest -q
+cd backend && .venv/Scripts/python.exe -m pytest -q
 cd frontend && npx vitest run && npm run build
-node ../../scripts/verify.mjs   # kit gate — "no gates yet" warning is expected
+node ../../scripts/verify.mjs   # 5 gates (doc-truth, skills, pytest, vitest, build)
 ```
 
 Postgres-specific tests require `DATABASE_URL_TEST` to be set to a real, empty PostgreSQL database. Without it they are skipped; SQLite-backed unit tests still run.
+
+## Docker (single command)
+
+```bash
+cd novel_reader
+# one-time: let the backend container reach Postgres on the host
+copy .env .env.docker    # then replace localhost -> host.docker.internal in the two DB URLs
+docker compose up -d --build    # SPA on http://localhost:8080
+```
+
+`docker-compose.yml` loads `.env` then `.env.docker` (gitignored overrides — see
+`.env.docker.example`), mounts `drafts/Novel/` **read-only**, and forces
+`ENVIRONMENT=local` (TEST DB) inside the container. On Windows/Docker Desktop the
+bind-mounted first scan can take ~90 s; later starts use the mtime fingerprint.
+Gates are cross-platform via root `package.json` scripts + `scripts/gate.mjs`.

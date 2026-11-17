@@ -1,0 +1,9 @@
+{
+  "name": "inkwell-gates",
+  "private": true,
+  "description": "Cross-platform gate commands for scripts/verify.mjs — not an application package.",
+  "scripts": {
+    "gate:node": "node scripts/gate.mjs node",
+    "gate:python": "node scripts/gate.mjs python -m pytest -q"
+  }
+}

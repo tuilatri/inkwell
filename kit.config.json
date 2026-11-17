@@ -105,23 +105,21 @@
   "gates": [
     {
       "id": "docs-truth",
-      "cmd": "node.exe",
-      "args": ["scripts/doc-truth.mjs"],
+      "cmd": "npm",
+      "args": ["run", "gate:node", "--", "scripts/doc-truth.mjs"],
       "tags": ["fast"]
     },
     {
       "id": "skills-integrity",
-      "cmd": "node.exe",
-      "args": ["scripts/check-skills.mjs"],
+      "cmd": "npm",
+      "args": ["run", "gate:node", "--", "scripts/check-skills.mjs"],
       "tags": ["fast"]
     },
     {
       "id": "backend-tests",
-      "cmd": ".venv/Scripts/python.exe",
-      "args": ["-m", "pytest", "-q"],
-      "cwd": "novel_reader/backend",
-      "tags": ["slow"],
-      "requires": ["novel_reader/backend/.venv/Scripts/python.exe"]
+      "cmd": "npm",
+      "args": ["run", "gate:python"],
+      "tags": ["slow"]
     },
     {
       "id": "frontend-tests",

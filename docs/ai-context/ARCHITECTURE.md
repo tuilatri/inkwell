@@ -6,6 +6,7 @@
 - `comix_downloader/` — Python scraper (CLI + GUI) for Comix.to; source imported from `D:\bato-downloader\src\comix_downloader`. Downloads chapter images/text to disk; uses real Chrome via undetected-chromedriver. Runtime data `.chrome_profile/` is gitignored.
 - `novel_reader/backend/` — Python 3.13 + FastAPI + SQLAlchemy async + Alembic + asyncpg; serves the reader API on :8000 from a project-local `.venv`.
 - `novel_reader/frontend/` — React 18 + Vite 6 + TypeScript + Tailwind v4 + shadcn/ui (Radix); SPA on :5173, `/api` proxied to backend.
+- Docker (optional): `novel_reader/docker-compose.yml` runs `backend` (uvicorn :8000) + `frontend` (nginx :80, SPA + `/api` proxy) published on **:8080**; `.env` + gitignored `.env.docker` supply DB URLs at runtime, `drafts/Novel/` is bind-mounted `:ro`, no Postgres container by default.
 
 ## 2. Services & Modules
 - `app/core/config.py` — pydantic-settings from `novel_reader/.env`; converts plain `postgresql://` links to `postgresql+asyncpg://`; active DB = TEST unless `ENVIRONMENT=production`.

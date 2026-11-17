@@ -38,4 +38,7 @@ The account dropdown appeared to open but its content sat at `translate(0, -200%
 ## 12. `getByLabel` substring collisions and zero-height virtualizers
 Adding `aria-label="Hiện mật khẩu"` made `getByLabel('Mật khẩu')` match both the input and the toggle in E2E — use `getByLabel('Mật khẩu', { exact: true })`. Also, `useVirtualizer` reports zero rows in jsdom/hidden panels; render a bounded first-page fallback (≤12 rows) so rows are never blank while keeping DOM bounded.
 
-## 13.
+## 13. Docker needs host-reachable DB URLs and time on Windows bind mounts
+`localhost` in `.env` points at the container, not the host → backend startup hung on DB connection. Fix: gitignored `.env.docker` rewriting DB URLs to `host.docker.internal` (compose loads it after `.env`). Also the first scan over a `drafts/Novel/` bind mount on Docker Desktop took ~90 s — let startup finish before smoke-testing. PowerShell `curl --data-raw $json` mangles JSON; write the body to a file and use `--data-binary @file`.
+
+## 14.

@@ -28,6 +28,8 @@ node scripts/doc-truth.mjs   # claims in kit.config.json alone
 
 `.githooks/pre-commit` runs the `--fast` guard before each commit; enable it in a
 fresh clone with `git config core.hooksPath .githooks` (already set in this clone).
+Gate commands are cross-platform via root `package.json` scripts + `scripts/gate.mjs` (Windows venv vs POSIX venv).
+Docker smoke: `cd novel_reader && docker compose up -d --build`, then `curl localhost:8080/` → 200 SPA, `/api/novels` unauth → 401, login → library → search.
 Gates tagged `slow` = backend-tests, frontend-tests, frontend-build — full suite
 runs in `.github/workflows/ci.yml` on push to `main`/`feat/**` and PRs to `main`
 (windows-latest, Python 3.13 + Node 22, backend venv + `pip install -e ".[test]"`,

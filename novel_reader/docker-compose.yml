@@ -1,0 +1,24 @@
+services:
+  backend:
+    build: ./backend
+    env_file:
+      - .env
+      - .env.docker   # gitignored: localhost -> host.docker.internal for containers
+    environment:
+      # Containers always use the TEST database unless the owner changes this.
+      ENVIRONMENT: local
+      NOVEL_ROOT: /content/Novel
+      CORS_ORIGINS: http://localhost:8080
+    volumes:
+      - ../drafts/Novel:/content/Novel:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    expose:
+      - "8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
