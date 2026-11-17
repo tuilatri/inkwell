@@ -32,6 +32,13 @@
 
 **MANDATORY**: create `implementation_plan.md` + `task.md` in `drafts/plans/<MMDDYY>_<n>_<status>/`.
 
+`<status>` lifecycle (owner-approved 2026-11-17):
+- `draft` — new plan, work in progress.
+- `done` — every task in `task.md` is `[x]` and its verification passed.
+- `cancelled` — stopped by owner decision; append `Status: cancelled — <reason>` to `task.md` and leave unfinished boxes unchecked.
+
+Tick `[x]` in `task.md` as each task finishes, not in one batch at the end. Rename the folder to `_done` when the last task verifies green, or to `_cancelled` when the owner stops it.
+
 # Workflow Contract — owner-approved 2026-11-17
 
 For every **non-trivial** request, follow this loop in order:
