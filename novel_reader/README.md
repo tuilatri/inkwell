@@ -34,6 +34,17 @@ novel_reader/
    npm run dev        # http://localhost:5173, /api proxied to :8000
    ```
 
+## One-click start (Windows)
+
+Double-click **`start.py`** in this folder — no terminal needed. It:
+- checks ports `8000`/`5173` and required files first (clear error message, no traceback);
+- starts the backend in its own console using `backend/.venv/Scripts/python.exe -m uvicorn ... --reload`;
+- starts the frontend in its own console using `npm run dev`;
+- opens `http://localhost:5173` in your browser (use `python start.py --no-browser` to skip);
+- **stops both servers** when you close the launcher window or press Ctrl+C there.
+
+You can still run the two commands manually (below) — the launcher is only a convenience wrapper.
+
 ## First login
 
 On startup, if `admin_users` is empty, `ADMIN_USERNAME`/`ADMIN_PASSWORD` from `.env` are seeded (hashed with argon2id). After changing the password through the web UI, the seed never runs again — env credentials are void.
