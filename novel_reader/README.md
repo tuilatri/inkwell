@@ -36,7 +36,7 @@ novel_reader/
 
 ## One-click start (Windows)
 
-Double-click **`start.py`** in this folder — no terminal needed. It:
+Double-click **`start.bat`** in this folder (Windows Explorer) — it always executes via `cmd.exe`, so VS Code never opens it as a text file. `start.py` remains the logic/CLI entry (`python start.py --no-browser`). The launcher:
 - checks ports `8000`/`5173` and required files first (clear error message, no traceback);
 - starts the backend in its own console using `backend/.venv/Scripts/python.exe -m uvicorn ... --reload`;
 - starts the frontend in its own console using `npm run dev`;

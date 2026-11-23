@@ -11,7 +11,7 @@ Measured 2026-11-17; numbers use dot as thousands separator when ≥1000.
 
 ## 2. How to run
 
-For everyday use, double-click `novel_reader/start.py` (or `python novel_reader/start.py --no-browser`) — it starts both dev servers in separate windows and stops them together. The commands below remain the source of truth for verification.
+For everyday use, double-click `novel_reader/start.bat` in Windows Explorer (a thin `cmd.exe` wrapper that always executes, never opens in VS Code); it calls `start.py`, which starts both dev servers in separate windows and stops them together. `python novel_reader/start.py --no-browser` stays the CLI equivalent. The commands below remain the source of truth for verification.
 
 ```bash
 # Backend (from novel_reader/backend, venv only)
