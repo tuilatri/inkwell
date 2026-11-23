@@ -23,6 +23,7 @@
 | File | Lines | Role |
 |---|---:|---|
 | `novel_reader/frontend/src/` | 1.767 | shadcn/ui (Radix + Tailwind v4) dark-theme SPA: login with password toggle, library TOC (names only, one horizontal scroll, bookmark), reader with top nav + fused progress + auto-located active chapter, EN/VI tabs, search, Playwright E2E. |
+| `novel_reader/start.py` | 108 | Stdlib one-click launcher (double-click): port checks, venv uvicorn + npm dev in separate consoles, Ctrl+C / close-window stops both. |
 
 ## Pinned file sizes (doc-truth `lines:` claims — all git-listed files, non-empty lines)
 | File | Non-empty lines |
