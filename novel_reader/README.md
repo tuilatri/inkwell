@@ -41,7 +41,7 @@ Double-click **`start.bat`** in this folder (Windows Explorer) — it always exe
 - starts the backend in its own console using `backend/.venv/Scripts/python.exe -m uvicorn ... --reload`;
 - starts the frontend in its own console using `npm run dev`;
 - opens `http://localhost:5173` in your browser (use `python start.py --no-browser` to skip);
-- **stops both servers** when you close the launcher window or press Ctrl+C there.
+- **stays open as long as you need it** (no time limit) and stops both servers when you close the launcher window or press Ctrl+C there; if a server really fails, the launcher tells you which console to check.
 
 You can still run the two commands manually (below) — the launcher is only a convenience wrapper.
 
