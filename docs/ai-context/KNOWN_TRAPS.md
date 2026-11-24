@@ -44,4 +44,7 @@ Adding `aria-label="Hiện mật khẩu"` made `getByLabel('Mật khẩu')` matc
 ## 14. Smoke-test deadline leaked into a user-facing launcher
 `start.py` had `deadline = time.time() + 180` (a guard for background smoke tests). Shipped as-is, the launcher silently exited after 3 min and its `finally` killed both dev servers — the owner saw consoles close for no reason. Fix: user-facing launchers wait until the user closes them / Ctrl+C, and only exit early on a real child failure, with a visible error + pause. Keep test-only timeouts in tests, not in shipped entry points.
 
-## 15.
+## 15. Manga scan needs a wider fingerprint column and a display suffix
+`ScanLog.fingerprint` was `VARCHAR(64)`; prefixing the manga fingerprint with `manga:` makes it 70 chars → Postgres rejects the insert, so manga chapters never appear. Fix: Alembic 0005 widens the column to 80; keep the prefix to separate text/manga skip decisions. Also prefix `Novel.source_dir` with `manhwa:` (a title can exist in both roots) and add a ` (manga)` **display** suffix so users can tell duplicates apart — strip that suffix when resolving the on-disk path.
+
+## 16.

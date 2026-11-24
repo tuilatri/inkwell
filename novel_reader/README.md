@@ -51,7 +51,7 @@ On startup, if `admin_users` is empty, `ADMIN_USERNAME`/`ADMIN_PASSWORD` from `.
 
 ## Content rules
 
-- Source: `NOVEL_ROOT/<novel>/chapters_vi/` and `chapters_en/` (one novel, two language tabs; VI default).
+- Source: `NOVEL_ROOT/<novel>/chapters_vi/` and `chapters_en/` (one novel, two language tabs; VI default). Manga lives in a **separate** `MANHWA_ROOT` (`../drafts/Manhwa`), same `chapters_vi/en/Ch<N>/page_*` shape, with a ` (manga)` display suffix; set both roots in `.env`.
 - Only `.txt` files become chapters. `_index.txt`, `*.json`, images and all other files are ignored.
 - Both layouts are supported and may be mixed: flat `Chapter_001.txt`, or `Chapter 1 - Title/text.txt`.
 - Text is streamed from disk. The DB holds metadata, a Postgres FTS index and reading state only.

@@ -79,6 +79,9 @@ export function VirtualChapterList({ chapters, filter = '', onSelect, activeId, 
             >
               <span className="tabular w-12 shrink-0 text-muted-foreground">{chapter.number ?? '—'}</span>
               <span className="min-w-0 flex-1 truncate font-medium">{chapter.title}</span>
+              {chapter.kind === 'images' && (
+                <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">tranh</span>
+              )}
               <Bookmark
                 role="img"
                 aria-label={chapter.visited ? 'Đã đọc' : 'Chưa đọc'}

@@ -31,6 +31,15 @@ os.environ.setdefault("DATABASE_URL_TEST", f"sqlite+aiosqlite:///{TEST_DB_PATH.a
 os.environ.setdefault("ADMIN_USERNAME", "admin")
 os.environ.setdefault("ADMIN_PASSWORD", "admin-pass-123")
 os.environ.setdefault("NOVEL_ROOT", str(FIXTURE_ROOT))
+# Manga fixture: one title, two languages, image chapter folders.
+MANHWA_FIXTURE = FIXTURE_ROOT.parent / "inkwell-manhwa-test"
+for _lang in ("vi", "en"):
+    for _n in (1, 2):
+        _pages = MANHWA_FIXTURE / "Manga Test" / f"chapters_{_lang}" / f"Ch{_n}"
+        _pages.mkdir(parents=True, exist_ok=True)
+        (_pages / "page_001.jpg").write_bytes(b"\xff\xd8\xff\xd9")
+        (_pages / "page_002.jpg").write_bytes(b"\xff\xd8\xff\xd9")
+os.environ.setdefault("MANHWA_ROOT", str(MANHWA_FIXTURE))
 
 from app.core.config import get_settings  # noqa: E402
 

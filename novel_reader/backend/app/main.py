@@ -15,7 +15,7 @@ from app.api import search as search_api
 from app.core.config import get_settings
 from app.core.security import seed_admin_from_env
 from app.db.session import AsyncSessionLocal
-from app.services.scanner import scan_novels
+from app.services.scanner import scan_all
 from app.services.search_index import rebuild_search_index
 
 log = logging.getLogger("novel_reader")
@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
             await seed_admin_from_env(
                 session, settings.admin_username, settings.admin_password
             )
-            result = await scan_novels(settings.novel_root, session)
+            result = await scan_all(settings.novel_root, settings.manhwa_root, session)
             indexed = await rebuild_search_index(session) if not result.skipped else 0
             log.info(
                 "startup scan: novels=%s chapters=%s warnings=%s indexed=%s",

@@ -30,7 +30,7 @@ test.describe('Inkwell Novel Reader flow', () => {
     await page.keyboard.press('Escape')
     const titles = page.locator('button:has-text("Mở truyện")')
     await expect(titles.first()).toBeVisible()
-    expect(await titles.count()).toBe(4)
+    expect(await titles.count()).toBeGreaterThanOrEqual(4) // text + manga titles
     expect(await page.locator('img').count()).toBe(0)
 
     await titles.first().click()
@@ -62,6 +62,28 @@ test.describe('Inkwell Novel Reader flow', () => {
     await searchInput.fill('wire') // partial prefix, not the full title
     await expect(page.locator('[cmdk-item]').first()).toBeVisible()
     await page.screenshot({ path: 'test-results/search-dialog.png' })
+  })
+
+  test('manga chapter: pages, page navigation and progress restore', async ({ page }) => {
+    await page.goto('/login')
+    await page.getByLabel('Tên đăng nhập').fill(username!)
+    await page.getByLabel('Mật khẩu', { exact: true }).fill(password!)
+    await page.getByRole('button', { name: 'Đăng nhập' }).click()
+    await expect(page.getByRole('heading', { name: 'Thư viện' })).toBeVisible({ timeout: 180_000 })
+
+    await page.locator('.card-hover').filter({ hasText: 'manga' }).getByRole('button', { name: 'Mở truyện' }).first().click()
+    // Manga fixture has both languages; the EN tab carries Ch1/Ch2.
+    await page.getByRole('tab', { name: 'EN' }).click()
+    await page.getByTestId('chapter-list').getByRole('button').first().click()
+    const counter = page.locator('.tabular', { hasText: /^\d+ \/ \d+$/ })
+    await expect(counter).toBeVisible({ timeout: 30_000 })
+    const total = Number((await counter.innerText()).split('/')[1].trim())
+    expect(total).toBeGreaterThan(1)
+    await page.screenshot({ path: 'test-results/manga-reader.png' })
+    await page.getByRole('button', { name: 'Trang sau' }).click()
+    await expect(counter).toHaveText(`2 / ${total}`)
+    await page.reload()
+    await expect(counter).toHaveText(`2 / ${total}`, { timeout: 30_000 })
   })
 
   test('mobile viewport keeps the chapter list reachable', async ({ browser }) => {

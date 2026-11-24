@@ -102,10 +102,10 @@ For every **non-trivial** request, follow this loop in order:
 
 | | |
 |---|---|
-| Apps | `comix_downloader/` — Python scraper, 10 files / 2.880 lines · `novel_reader/backend/` — FastAPI, 34 files / 1.602 lines · `novel_reader/frontend/src/` — React/Vite/TS, 58 files / 1.767 lines |
+| Apps | `comix_downloader/` — Python scraper, 10 files / 2.880 lines · `novel_reader/backend/` — FastAPI, 37 files / 1.913 lines · `novel_reader/frontend/src/` — React/Vite/TS, 60 files / 1.890 lines |
 | Backend entry | `cd novel_reader/backend && .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000` |
 | Frontend entry | `cd novel_reader/frontend && npm run dev` (`:5173`, `/api` proxied to `:8000`) |
-| DB | PostgreSQL 18 — two empty-at-setup DBs (TEST used by default, PRODUCTION only on request); Alembic `0001_initial` + `0002_source_dir_and_soft_delete` + `0003_scan_fingerprint`; tables created on both |
+| DB | PostgreSQL 18 — two empty-at-setup DBs (TEST used by default, PRODUCTION only on request); Alembic `0001_initial` … `0005_widen_fingerprint` (5 revisions); tables created on both |
 | Auth | Single admin seeded from `.env` on empty `admin_users`; argon2id password; JWT in `nr_access`/`nr_refresh` HttpOnly cookies (`jti` in DB); CSRF header on state-changing routes |
 | Agent roles | `.claude/agents/` — 10 role cards + README, native frontmatter, body referencing `docs/ai-context/` |
 | Verify | `node scripts/verify.mjs` — gates in `kit.config.json` (pytest / vitest / build); `node scripts/doc-truth.mjs` checks claims; `--fast` skips `slow`, `--list` lists gates |
