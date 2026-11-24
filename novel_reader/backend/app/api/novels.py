@@ -18,7 +18,14 @@ async def list_novels(
     _user=Depends(get_current_user),
 ) -> list[NovelOut]:
     rows = (await session.execute(select(Novel).order_by(Novel.title))).scalars().all()
-    return [NovelOut(id=row.id, title=row.title) for row in rows]
+    return [
+        NovelOut(
+            id=row.id,
+            title=row.title,
+            kind="manga" if row.source_dir.startswith("manhwa:") else "novel",
+        )
+        for row in rows
+    ]
 
 
 @router.get("/novels/{novel_id}/variants", response_model=list[VariantOut])

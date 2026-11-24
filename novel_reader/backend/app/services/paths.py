@@ -16,8 +16,7 @@ async def chapter_path(chapter: Chapter, session: AsyncSession) -> Path:
     settings = get_settings()
     if chapter.kind == "images" or novel.source_dir.startswith("manhwa:"):
         root = settings.manhwa_root.resolve()
-        # Display title carries a " (manga)" suffix; on disk the folder does not.
-        title = novel.title.removesuffix(" (manga)")
+        title = novel.title
     else:
         root = settings.novel_root.resolve()
         title = novel.title

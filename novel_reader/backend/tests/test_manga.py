@@ -47,7 +47,9 @@ async def test_manga_scan_is_idempotent(db_session):
 
 async def test_pages_and_media_auth_and_progress(manga_client, db_session):
     novels = (await manga_client.get("/api/novels")).json()
-    manga = next(n for n in novels if n["title"] == "Manga Test (manga)")
+    manga = next(n for n in novels if n["title"] == "Manga Test")
+    assert manga["kind"] == "manga"
+    assert next(n for n in novels if n["title"] == "Test Novel")["kind"] == "novel"
     variants = (await manga_client.get(f"/api/novels/{manga['id']}/variants")).json()
     assert {v["lang"] for v in variants} == {"vi", "en"}
     en_variant = next(v for v in variants if v["lang"] == "en")

@@ -34,8 +34,9 @@ async def test_library_lists_names_only(auth_client, db_session):
     assert response.status_code == 200
     body = response.json()
     assert len(body) == 1
-    assert set(body[0]) == {"id", "title"}
+    assert set(body[0]) == {"id", "title", "kind"}
     assert body[0]["title"] == "Test Novel"
+    assert body[0]["kind"] == "novel"
 
 
 async def test_variant_switch_and_read(auth_client, db_session):

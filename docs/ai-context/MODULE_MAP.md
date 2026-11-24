@@ -12,24 +12,24 @@
 
 ## novel_reader — FastAPI + React/Vite · 3.803 lines · 97 files
 
-### `novel_reader/backend/` — 1.913 lines
+### `novel_reader/backend/` — 1.945 lines
 
 | File | Lines | Role |
 |---|---:|---|
-| `novel_reader/backend/` | 1.913 | Auth (JWT cookies + argon2), dual-root fingerprint scanner (text + manga), pages/media APIs, Postgres FTS, Alembic migrations, pytest suite. |
+| `novel_reader/backend/` | 1.945 | Auth (JWT cookies + argon2), dual-root fingerprint scanner (text + manga), pages/media APIs, Postgres FTS, Alembic migrations (0001–0006), pytest suite. |
 
-### `novel_reader/frontend/src/` — 1.890 lines
+### `novel_reader/frontend/src/` — 1.964 lines
 
 | File | Lines | Role |
 |---|---:|---|
-| `novel_reader/frontend/src/` | 1.890 | shadcn/ui (Radix + Tailwind v4) dark-theme SPA: login with password toggle, library TOC (names only, one horizontal scroll, bookmark), text reader + MangaReader with page progress, EN/VI tabs, search, Playwright E2E. |
+| `novel_reader/frontend/src/` | 1.964 | shadcn/ui (Radix + Tailwind v4) dark-theme SPA: login with password toggle, library cards with Novel/Manhwa badge + TOC (names only, one horizontal scroll, bookmark), text reader + continuous-scroll MangaReader with page progress, EN/VI tabs, search, Playwright E2E. |
 | `novel_reader/start.py` | 108 | Stdlib one-click launcher (double-click): port checks, venv uvicorn + npm dev in separate consoles, Ctrl+C / close-window stops both. |
 
 ## Pinned file sizes (doc-truth `lines:` claims — all git-listed files, non-empty lines)
 | File | Non-empty lines |
 |---|---:|
 | `novel_reader/backend/app/main.py` | 68 |
-| `novel_reader/frontend/src/pages/Reader.tsx` | 198 |
+| `novel_reader/frontend/src/pages/Reader.tsx` | 187 |
 | `.opencode/skills/novel-reader-backend-conventions/SKILL.md` | 14 |
 | `docs/ai-context/FRONTEND_MAP.md` | 32 |
 

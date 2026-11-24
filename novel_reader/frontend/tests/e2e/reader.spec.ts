@@ -64,26 +64,34 @@ test.describe('Inkwell Novel Reader flow', () => {
     await page.screenshot({ path: 'test-results/search-dialog.png' })
   })
 
-  test('manga chapter: pages, page navigation and progress restore', async ({ page }) => {
+  test('manga chapter: full vertical list, scroll progress and restore', async ({ page }) => {
     await page.goto('/login')
     await page.getByLabel('Tên đăng nhập').fill(username!)
     await page.getByLabel('Mật khẩu', { exact: true }).fill(password!)
     await page.getByRole('button', { name: 'Đăng nhập' }).click()
     await expect(page.getByRole('heading', { name: 'Thư viện' })).toBeVisible({ timeout: 180_000 })
 
-    await page.locator('.card-hover').filter({ hasText: 'manga' }).getByRole('button', { name: 'Mở truyện' }).first().click()
-    // Manga fixture has both languages; the EN tab carries Ch1/Ch2.
+    const mangaCard = page.locator('.card-hover').filter({ hasText: 'Manhwa' }).first()
+    await expect(mangaCard).toBeVisible()
+    await mangaCard.getByRole('button', { name: 'Mở truyện' }).click()
+    // Manga corpus has both languages; the EN tab carries the chapters.
     await page.getByRole('tab', { name: 'EN' }).click()
     await page.getByTestId('chapter-list').getByRole('button').first().click()
     const counter = page.locator('.tabular', { hasText: /^\d+ \/ \d+$/ })
     await expect(counter).toBeVisible({ timeout: 30_000 })
     const total = Number((await counter.innerText()).split('/')[1].trim())
     expect(total).toBeGreaterThan(1)
+    // The whole chapter is in the DOM as one lazy-loaded vertical list.
+    expect(await page.locator('img[data-page]').count()).toBe(total)
+    await expect(page.locator('img[data-page="1"]')).toBeVisible()
+    await expect(page.locator('img[data-page="2"]')).toBeVisible()
+    expect(await page.getByRole('button', { name: 'Trang sau' }).count()).toBe(0)
     await page.screenshot({ path: 'test-results/manga-reader.png' })
-    await page.getByRole('button', { name: 'Trang sau' }).click()
-    await expect(counter).toHaveText(`2 / ${total}`)
+
+    await page.locator('img[data-page="2"]').scrollIntoViewIfNeeded()
+    await expect(counter).toHaveText(`2 / ${total}`, { timeout: 15_000 })
     await page.reload()
-    await expect(counter).toHaveText(`2 / ${total}`, { timeout: 30_000 })
+    await expect(page.locator('.tabular', { hasText: /^\d+ \/ \d+$/ })).toHaveText(`2 / ${total}`, { timeout: 30_000 })
   })
 
   test('mobile viewport keeps the chapter list reachable', async ({ browser }) => {

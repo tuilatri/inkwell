@@ -21,6 +21,7 @@ class MeOut(BaseModel):
 class NovelOut(BaseModel):
     id: int
     title: str
+    kind: str = "novel"
 
 
 class VariantOut(BaseModel):

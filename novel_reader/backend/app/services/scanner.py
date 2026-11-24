@@ -235,7 +235,7 @@ async def scan_manhwa(root: Path, session: AsyncSession, force: bool = False) ->
             await session.execute(select(Novel).where(Novel.source_dir == source))
         ).scalar_one_or_none()
         if novel is None:
-            novel = Novel(source_dir=source, slug=slugify(novel_dir.name), title=f"{novel_dir.name} (manga)")
+            novel = Novel(source_dir=source, slug=slugify(novel_dir.name), title=novel_dir.name)
             session.add(novel)
             await session.flush()
         result.novels += 1

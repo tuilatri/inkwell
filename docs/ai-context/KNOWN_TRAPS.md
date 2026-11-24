@@ -44,7 +44,8 @@ Adding `aria-label="Hiện mật khẩu"` made `getByLabel('Mật khẩu')` matc
 ## 14. Smoke-test deadline leaked into a user-facing launcher
 `start.py` had `deadline = time.time() + 180` (a guard for background smoke tests). Shipped as-is, the launcher silently exited after 3 min and its `finally` killed both dev servers — the owner saw consoles close for no reason. Fix: user-facing launchers wait until the user closes them / Ctrl+C, and only exit early on a real child failure, with a visible error + pause. Keep test-only timeouts in tests, not in shipped entry points.
 
-## 15. Manga scan needs a wider fingerprint column and a display suffix
-`ScanLog.fingerprint` was `VARCHAR(64)`; prefixing the manga fingerprint with `manga:` makes it 70 chars → Postgres rejects the insert, so manga chapters never appear. Fix: Alembic 0005 widens the column to 80; keep the prefix to separate text/manga skip decisions. Also prefix `Novel.source_dir` with `manhwa:` (a title can exist in both roots) and add a ` (manga)` **display** suffix so users can tell duplicates apart — strip that suffix when resolving the on-disk path.
+## 15. Manga scan needs a wider fingerprint column and a root prefix
+`ScanLog.fingerprint` was `VARCHAR(64)`; prefixing the manga fingerprint with `manga:` makes it 70 chars → Postgres rejects the insert, so manga chapters never appear. Fix: Alembic 0005 widens the column to 80; keep the prefix to separate text/manga skip decisions. Prefix `Novel.source_dir` with `manhwa:` because a title can exist in both roots. Do **not** mutate `Novel.title` (an earlier ` (manga)` suffix was ugly and forced path hacks — Alembic 0006 removes it); expose `NovelOut.kind` instead and let the card render a `Novel`/`Manhwa` badge.
 
-## 16.
+## 16. Continuous manga scroll needs reserved image layout and a restore gate
+`loading="lazy"` images with no `width`/`height` collapse to zero height before load, so `scrollIntoView()` to the saved page lands at the top and the IntersectionObserver only ever sees page 1. Fix: give every `<img>` explicit `width`/`height` (aspect-ratio hint) and suppress observer-driven progress until the restore `requestAnimationFrame` has completed — otherwise page 1 overwrites the saved page before scrolling finishes.
