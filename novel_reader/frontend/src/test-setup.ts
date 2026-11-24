@@ -8,6 +8,14 @@ class ResizeObserverStub {
 }
 globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver
 
+class IntersectionObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return [] }
+}
+globalThis.IntersectionObserver = IntersectionObserverStub as unknown as typeof IntersectionObserver
+
 HTMLElement.prototype.scrollIntoView = () => {}
 
 Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, get: () => 600 })

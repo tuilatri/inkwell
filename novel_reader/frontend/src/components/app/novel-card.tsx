@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export function NovelCard({ title, chapterCount, active, onOpen }: { title: string; chapterCount?: number; active?: boolean; onOpen: () => void }) {
+export function NovelCard({ title, kind = 'novel', chapterCount, active, onOpen }: { title: string; kind?: 'novel' | 'manga'; chapterCount?: number; active?: boolean; onOpen: () => void }) {
   return (
     <Card className={cn('card-hover rise-in', active ? 'border-accent/60' : undefined)}>
       <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
@@ -17,7 +17,12 @@ export function NovelCard({ title, chapterCount, active, onOpen }: { title: stri
         <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-2">
-        <span className="text-sm text-muted-foreground">Bộ truyện</span>
+        <span className="flex items-center gap-2 text-sm text-muted-foreground">
+          Bộ truyện
+          <Badge variant="secondary" className={cn('text-[10px] font-medium', kind === 'manga' && 'border-accent/40 bg-accent/10 text-accent')}>
+            {kind === 'manga' ? 'Manhwa' : 'Novel'}
+          </Badge>
+        </span>
         {chapterCount !== undefined && <Badge variant="secondary" className="tabular">{chapterCount} chương</Badge>}
       </CardContent>
       <CardContent className="pt-0">

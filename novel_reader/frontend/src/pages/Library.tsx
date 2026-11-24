@@ -85,7 +85,7 @@ export default function Library() {
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {novels.map((novel) => (
-                <NovelCard key={novel.id} title={novel.title} active={selected?.id === novel.id} onOpen={() => setSelected(novel)} />
+                <NovelCard key={novel.id} title={novel.title} kind={novel.kind} active={selected?.id === novel.id} onOpen={() => setSelected(novel)} />
               ))}
             </div>
           )}

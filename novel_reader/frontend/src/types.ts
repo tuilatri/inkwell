@@ -1,4 +1,4 @@
-export interface Novel { id: number; title: string }
+export interface Novel { id: number; title: string; kind?: 'novel' | 'manga' }
 export interface Variant { id: number; lang: string }
 export interface Chapter {
   id: number

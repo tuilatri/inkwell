@@ -147,18 +147,6 @@ export default function Reader() {
     if (chapterId) saveProgress(Number(chapterId), 0, next)
   }
 
-  useEffect(() => {
-    if (!isManga) return
-    function onKey(event: KeyboardEvent) {
-      const target = event.target as HTMLElement | null
-      if (target && ['INPUT', 'TEXTAREA'].includes(target.tagName)) return
-      if (event.key === 'ArrowRight') { event.preventDefault(); setMangaPage((value) => Math.min(pages.length, value + 1)) }
-      if (event.key === 'ArrowLeft') { event.preventDefault(); setMangaPage((value) => Math.max(1, value - 1)) }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isManga, pages.length])
-
   const index = chapters.findIndex((item) => item.id === Number(chapterId))
   const prev = index > 0 ? chapters[index - 1] : undefined
   const next = index >= 0 && index < chapters.length - 1 ? chapters[index + 1] : undefined
