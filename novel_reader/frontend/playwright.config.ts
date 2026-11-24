@@ -18,7 +18,7 @@ try {
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 120_000,
+  timeout: 300_000, // cold start scans ~25k image stats + text FTS rebuild
   use: {
     baseURL: 'http://localhost:5173',
     channel: 'chrome',
@@ -32,7 +32,7 @@ export default defineConfig({
       timeout: 60_000,
     },
     {
-      command: '.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000',
+      command: 'cmd /c "..\\backend\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000"',
       cwd: resolve(root, '../backend'),
       url: 'http://localhost:8000/api/novels',
       reuseExistingServer: true,

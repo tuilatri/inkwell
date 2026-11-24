@@ -52,7 +52,8 @@ async def list_chapters(
         (
             await session.execute(
                 select(ReadingState.chapter_id).where(
-                    ReadingState.user_id == user.id, ReadingState.scroll_pos > 0
+                    ReadingState.user_id == user.id,
+                    (ReadingState.scroll_pos > 0) | (ReadingState.page_index.is_not(None)),
                 )
             )
         ).scalars().all()
@@ -64,5 +65,7 @@ async def list_chapters(
             number=row.number,
             title=row.title,
             visited=row.id in visited,
+            kind=row.kind,
+            page_count=row.page_count,
         ))
     return result

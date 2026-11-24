@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     admin_password: str = "change-me"
 
     novel_root: Path = Path("../drafts/Novel")
+    manhwa_root: Path = Path("../drafts/Manhwa")
     cors_origins: str = "http://localhost:5173"
 
     @field_validator("database_url_test", "database_url_production", mode="before")
@@ -46,9 +47,9 @@ class Settings(BaseSettings):
                 return "postgresql+asyncpg://" + url[len(prefix):]
         return url
 
-    @field_validator("novel_root", mode="before")
+    @field_validator("novel_root", "manhwa_root", mode="before")
     @classmethod
-    def resolve_novel_root(cls, value: object) -> Path:
+    def resolve_content_roots(cls, value: object) -> Path:
         path = Path(str(value))
         return path if path.is_absolute() else (NOVEL_READER_ROOT / path).resolve()
 

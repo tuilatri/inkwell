@@ -14,6 +14,8 @@ from app.db.models import Chapter, Novel, ScanLog, ScanWarning, Variant
 NUMBER_RE = re.compile(r"\d+")
 LANGS = ("vi", "en")
 SKIP_PREFIXES = ("_", ".")
+IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
+MANGA_FP_PREFIX = "manga:"
 
 
 @dataclass
@@ -72,7 +74,10 @@ async def scan_novels(root: Path, session: AsyncSession, force: bool = False) ->
         last = (
             await session.execute(
                 select(ScanLog)
-                .where(ScanLog.finished_at.is_not(None))
+                .where(
+                    ScanLog.finished_at.is_not(None),
+                    ~ScanLog.fingerprint.like(f"{MANGA_FP_PREFIX}%"),
+                )
                 .order_by(ScanLog.id.desc())
                 .limit(1)
             )
@@ -167,6 +172,144 @@ async def scan_novels(root: Path, session: AsyncSession, force: bool = False) ->
     scan_log.finished_at = _utcnow()
     await session.commit()
     return result
+
+
+def image_pages(folder: Path) -> list[Path]:
+    """Sorted page images of one manga chapter folder (stat-only metadata)."""
+    return sorted(
+        p for p in folder.iterdir()
+        if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES and p.name.startswith("page_")
+    )
+
+
+def fingerprint_images(root: Path) -> str:
+    if not root.is_dir():
+        return ""
+    digest = hashlib.sha256()
+    for folder in sorted(p for p in root.rglob("*") if p.is_dir()):
+        for page in image_pages(folder):
+            stat = page.stat()
+            digest.update(page.relative_to(root).as_posix().encode("utf-8"))
+            digest.update(str(stat.st_mtime_ns).encode("ascii"))
+            digest.update(str(stat.st_size).encode("ascii"))
+            digest.update(b"\0")
+    return digest.hexdigest()
+
+
+async def scan_manhwa(root: Path, session: AsyncSession, force: bool = False) -> ScanResult:
+    """Image analogue of scan_novels — chapters are folders of page_*.{jpg,...}."""
+    result = ScanResult()
+    current = MANGA_FP_PREFIX + fingerprint_images(root)
+    if not force:
+        last = (
+            await session.execute(
+                select(ScanLog)
+                .where(
+                    ScanLog.finished_at.is_not(None),
+                    ScanLog.fingerprint.like(f"{MANGA_FP_PREFIX}%"),
+                )
+                .order_by(ScanLog.id.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        if last is not None and last.fingerprint == current:
+            result.skipped = True
+            result.novels = int((await session.execute(select(func.count()).select_from(Novel))).scalar_one())
+            result.chapters = int(
+                (await session.execute(select(func.count()).select_from(Chapter).where(Chapter.active.is_(True)))).scalar_one()
+            )
+            return result
+
+    scan_log = ScanLog(started_at=_utcnow(), fingerprint=current)
+    session.add(scan_log)
+    await session.flush()
+    if not root.is_dir():
+        scan_log.finished_at = _utcnow()
+        await session.commit()
+        return result
+
+    for novel_dir in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(SKIP_PREFIXES)):
+        # Prefix source_dir: a title may exist in both roots (e.g. Wireless_Onahole).
+        source = f"manhwa:{novel_dir.name}"
+        novel = (
+            await session.execute(select(Novel).where(Novel.source_dir == source))
+        ).scalar_one_or_none()
+        if novel is None:
+            novel = Novel(source_dir=source, slug=slugify(novel_dir.name), title=f"{novel_dir.name} (manga)")
+            session.add(novel)
+            await session.flush()
+        result.novels += 1
+
+        for lang in LANGS:
+            lang_root = novel_dir / f"chapters_{lang}"
+            if not lang_root.is_dir():
+                continue  # missing VI is not an error — the UI shows an empty tab
+            variant = (
+                await session.execute(
+                    select(Variant).where(Variant.novel_id == novel.id, Variant.lang == lang)
+                )
+            ).scalar_one_or_none()
+            if variant is None:
+                variant = Variant(novel_id=novel.id, lang=lang)
+                session.add(variant)
+                await session.flush()
+            result.variants += 1
+
+            existing = {
+                row.rel_path: row
+                for row in (await session.execute(select(Chapter).where(Chapter.variant_id == variant.id))).scalars()
+            }
+            seen_paths: set[str] = set()
+            seen_numbers: dict[int, str] = {}
+            for folder in sorted(p for p in lang_root.iterdir() if p.is_dir() and not p.name.startswith(SKIP_PREFIXES)):
+                pages = image_pages(folder)
+                if not pages:
+                    continue
+                rel_path = folder.relative_to(lang_root).as_posix()
+                number = int(NUMBER_RE.search(folder.name).group()) if NUMBER_RE.search(folder.name) else None
+                seen_paths.add(rel_path)
+                if number is not None and number in seen_numbers:
+                    await _warn(session, result, scan_log.id, "duplicate_number",
+                                f"{novel_dir.name}/{lang}: {rel_path} duplicates {seen_numbers[number]}")
+                    continue
+                if number is not None:
+                    seen_numbers[number] = rel_path
+                stats = [page.stat() for page in pages]
+                chapter = existing.get(rel_path)
+                if chapter is None:
+                    chapter = Chapter(variant_id=variant.id, kind="images")
+                    session.add(chapter)
+                chapter.number = number
+                chapter.title = folder.name[:500]
+                chapter.rel_path = rel_path
+                chapter.file_mtime = max(stat.st_mtime for stat in stats)
+                chapter.byte_size = sum(stat.st_size for stat in stats)
+                chapter.page_count = len(pages)
+                chapter.active = True
+                result.chapters += 1
+
+            for rel_path, chapter in existing.items():
+                if rel_path not in seen_paths and chapter.active:
+                    chapter.active = False
+                    await _warn(session, result, scan_log.id, "missing_file", f"{novel_dir.name}/{lang}: {rel_path}")
+
+    scan_log.novels_upserted = result.novels
+    scan_log.chapters_upserted = result.chapters
+    scan_log.finished_at = _utcnow()
+    await session.commit()
+    return result
+
+
+async def scan_all(novel_root: Path, manhwa_root: Path, session: AsyncSession, force: bool = False) -> ScanResult:
+    """Scan both corpora; counts are additive, skip decisions independent."""
+    text = await scan_novels(novel_root, session, force=force)
+    manga = await scan_manhwa(manhwa_root, session, force=force)
+    text.novels += manga.novels
+    text.variants += manga.variants
+    text.chapters += manga.chapters
+    text.warnings.extend(manga.warnings)
+    text.skipped = text.skipped and manga.skipped
+    return text
 
 
 def _utcnow():

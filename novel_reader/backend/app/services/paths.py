@@ -13,8 +13,15 @@ async def chapter_path(chapter: Chapter, session: AsyncSession) -> Path:
     """Resolve a chapter's text file, refusing any path outside the content root."""
     variant = await session.get(Variant, chapter.variant_id)
     novel = await session.get(Novel, variant.novel_id)
-    root = get_settings().novel_root.resolve()
-    path = (root / novel.title / f"chapters_{variant.lang}" / chapter.rel_path).resolve()
+    settings = get_settings()
+    if chapter.kind == "images" or novel.source_dir.startswith("manhwa:"):
+        root = settings.manhwa_root.resolve()
+        # Display title carries a " (manga)" suffix; on disk the folder does not.
+        title = novel.title.removesuffix(" (manga)")
+    else:
+        root = settings.novel_root.resolve()
+        title = novel.title
+    path = (root / title / f"chapters_{variant.lang}" / chapter.rel_path).resolve()
     if not path.is_relative_to(root):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid chapter path")
     return path

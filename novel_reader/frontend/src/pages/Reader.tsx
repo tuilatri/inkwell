@@ -7,13 +7,14 @@ import { AppHeader } from '@/components/app/app-header'
 import { ChapterFilter } from '@/components/app/chapter-filter'
 import { ErrorState } from '@/components/app/error-state'
 import { KeyboardShortcuts } from '@/components/app/keyboard-shortcuts'
+import { MangaReader } from '@/components/app/manga-reader'
 import { MobileChapterSheet } from '@/components/app/mobile-chapter-sheet'
 import { ReaderToolbar } from '@/components/app/reader-toolbar'
 import { ReaderView } from '@/components/app/reader-view'
 import { SearchCommand } from '@/components/app/search-command'
 import { VirtualChapterList } from '@/components/app/virtual-chapter-list'
 import { Spinner } from '@/components/ui/spinner'
-import type { Chapter, Novel, Progress, Variant } from '@/types'
+import type { Chapter, Novel, Page, Progress, Variant } from '@/types'
 
 function scrollPercent(top: number): number {
   const max = document.documentElement.scrollHeight - window.innerHeight
@@ -37,6 +38,8 @@ export default function Reader() {
   const navigate = useNavigate()
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [text, setText] = useState('')
+  const [pages, setPages] = useState<Page[]>([])
+  const [mangaPage, setMangaPage] = useState(1)
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [error, setError] = useState('')
   const [fontSize, setFontSize] = useState(17)
@@ -46,11 +49,21 @@ export default function Reader() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [progress, setProgress] = useState(0)
 
+  const isManga = chapter?.kind === 'images'
   const pendingRestore = useRef<number | null>(null)
   const restored = useRef(false)
   const suppressSave = useRef(false)
   const timer = useRef<number | undefined>(undefined)
   const toasted = useRef(false)
+
+  function saveProgress(chapter_id: number, scroll_pos: number, page_index: number | null) {
+    void apiFetch('/api/progress', {
+      method: 'PUT',
+      body: JSON.stringify({ chapter_id, scroll_pos, page_index }),
+    }).then(() => {
+      if (!toasted.current) { toast.success('Vị trí đọc đã được lưu'); toasted.current = true }
+    }).catch(() => undefined)
+  }
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -72,22 +85,36 @@ export default function Reader() {
     pendingRestore.current = null
     setChapter(null)
     setText('')
+    setPages([])
+    setMangaPage(1)
     setChapters([])
 
     apiFetch<Chapter>(`/api/chapters/${id}`).then(setChapter).catch((e) => setError(String(e)))
     apiFetch<Progress>(`/api/progress/${id}`)
-      .then((progress) => { pendingRestore.current = progress.scroll_pos })
+      .then((saved) => { pendingRestore.current = saved.scroll_pos; setMangaPage(saved.page_index ?? 1) })
       .catch(() => { pendingRestore.current = 0 })
-    apiFetch<string>(`/api/chapters/${id}/content`)
-      .then(setText)
-      .catch((e) => { setError(String(e)); suppressSave.current = false })
     loadChapters(id).then(setChapters).catch(() => undefined)
   }, [chapterId])
 
-  // Restore only after text is rendered; otherwise the browser clamps scrollTo
-  // on the short pre-render page and the debounce saves 0 over real progress.
+  // Text content loads only for text chapters; pages only for manga chapters.
   useEffect(() => {
-    if (!text || pendingRestore.current === null || restored.current) return
+    if (!chapter || isManga || text) return
+    const id = chapter.id
+    apiFetch<string>(`/api/chapters/${id}/content`)
+      .then(setText)
+      .catch((e) => { setError(String(e)); suppressSave.current = false })
+  }, [chapter, isManga, text])
+
+  useEffect(() => {
+    if (isManga && chapter && pages.length === 0) {
+      apiFetch<Page[]>(`/api/chapters/${chapter.id}/pages`)
+        .then(setPages)
+        .catch((e) => { setError(String(e)); suppressSave.current = false })
+    }
+  }, [isManga, chapter, pages.length])
+
+  useEffect(() => {
+    if (!text || isManga || pendingRestore.current === null || restored.current) return
     const target = pendingRestore.current
     restored.current = true
     requestAnimationFrame(() => {
@@ -95,20 +122,16 @@ export default function Reader() {
       setProgress(scrollPercent(target))
       window.setTimeout(() => { suppressSave.current = false }, 300)
     })
-  }, [text])
+  }, [text, isManga])
 
   useEffect(() => {
+    if (isManga) return
     function onScroll() {
       if (!restored.current || suppressSave.current || !chapterId) return
       setProgress(scrollPercent(window.scrollY))
       window.clearTimeout(timer.current)
       timer.current = window.setTimeout(() => {
-        void apiFetch('/api/progress', {
-          method: 'PUT',
-          body: JSON.stringify({ chapter_id: Number(chapterId), scroll_pos: window.scrollY }),
-        }).then(() => {
-          if (!toasted.current) { toast.success('Vị trí đọc đã được lưu'); toasted.current = true }
-        }).catch(() => undefined)
+        saveProgress(Number(chapterId), window.scrollY, null)
       }, 1000)
     }
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -116,7 +139,25 @@ export default function Reader() {
       window.removeEventListener('scroll', onScroll)
       window.clearTimeout(timer.current)
     }
-  }, [chapterId])
+  }, [chapterId, isManga])
+
+  function changePage(next: number) {
+    setMangaPage(next)
+    setProgress(pages.length ? (next / pages.length) * 100 : 0)
+    if (chapterId) saveProgress(Number(chapterId), 0, next)
+  }
+
+  useEffect(() => {
+    if (!isManga) return
+    function onKey(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null
+      if (target && ['INPUT', 'TEXTAREA'].includes(target.tagName)) return
+      if (event.key === 'ArrowRight') { event.preventDefault(); setMangaPage((value) => Math.min(pages.length, value + 1)) }
+      if (event.key === 'ArrowLeft') { event.preventDefault(); setMangaPage((value) => Math.max(1, value - 1)) }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isManga, pages.length])
 
   const index = chapters.findIndex((item) => item.id === Number(chapterId))
   const prev = index > 0 ? chapters[index - 1] : undefined
@@ -140,8 +181,11 @@ export default function Reader() {
       />
       {error && <div className="mx-auto max-w-6xl px-4 pt-4"><ErrorState message={error} /></div>}
       <div className="mx-auto grid max-w-6xl gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-4">
-          {!text ? <Spinner /> : <ReaderView text={text} fontSize={fontSize} lineHeight={lineHeight} />}
+        <div className="min-w-0 space-y-4">
+          {!chapter ? <Spinner />
+            : isManga ? <MangaReader pages={pages} pageIndex={mangaPage} onPageChange={changePage} />
+            : !text ? <Spinner />
+            : <ReaderView text={text} fontSize={fontSize} lineHeight={lineHeight} />}
           <div className="flex items-center justify-between gap-3">
             <button type="button" disabled={!prev} className="rounded-md border border-border px-3 py-2 text-sm disabled:opacity-40" onClick={() => prev && navigate(`/read/${prev.id}`)}>← Chương trước</button>
             <button type="button" disabled={!next} className="rounded-md border border-border px-3 py-2 text-sm disabled:opacity-40" onClick={() => next && navigate(`/read/${next.id}`)}>Chương sau →</button>

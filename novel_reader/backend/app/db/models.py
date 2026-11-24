@@ -44,6 +44,8 @@ class Chapter(Base):
     rel_path: Mapped[str] = mapped_column(String(1000))
     file_mtime: Mapped[float] = mapped_column(Float, default=0.0)
     byte_size: Mapped[int] = mapped_column(Integer, default=0)
+    kind: Mapped[str] = mapped_column(String(10), default="text", server_default="text", nullable=False)
+    page_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     # Soft delete: a temporarily missing file must not erase reading history.
     active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true(), nullable=False)
 
@@ -83,6 +85,7 @@ class ReadingState(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("admin_users.id", ondelete="CASCADE"), primary_key=True)
     chapter_id: Mapped[int] = mapped_column(ForeignKey("chapters.id", ondelete="CASCADE"), primary_key=True)
     scroll_pos: Mapped[float] = mapped_column(Float, default=0.0)
+    page_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
 
@@ -94,7 +97,7 @@ class ScanLog(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     novels_upserted: Mapped[int] = mapped_column(Integer, default=0)
     chapters_upserted: Mapped[int] = mapped_column(Integer, default=0)
-    fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    fingerprint: Mapped[str | None] = mapped_column(String(80), nullable=True)
 
 
 class ScanWarning(Base):

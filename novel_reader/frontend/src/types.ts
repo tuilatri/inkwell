@@ -5,8 +5,10 @@ export interface Chapter {
   number: number | null
   title: string
   visited?: boolean
+  kind?: 'text' | 'images'
+  page_count?: number
 }
-export interface Progress { chapter_id: number; scroll_pos: number }
+export interface Progress { chapter_id: number; scroll_pos: number; page_index?: number | null }
 export interface SearchHit {
   chapter_id: number
   novel_title: string
@@ -14,3 +16,4 @@ export interface SearchHit {
   chapter_title: string
   snippet: string
 }
+export interface Page { index: number; url: string }

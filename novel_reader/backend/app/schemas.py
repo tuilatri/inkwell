@@ -33,16 +33,25 @@ class ChapterOut(BaseModel):
     number: int | None
     title: str
     visited: bool = False
+    kind: str = "text"
+    page_count: int = 0
+
+
+class PageOut(BaseModel):
+    index: int
+    url: str
 
 
 class ProgressIn(BaseModel):
     chapter_id: int
-    scroll_pos: float = Field(ge=0.0)
+    scroll_pos: float = Field(default=0.0, ge=0.0)
+    page_index: int | None = None
 
 
 class ProgressOut(BaseModel):
     chapter_id: int
     scroll_pos: float
+    page_index: int | None = None
 
 
 class SearchHitOut(BaseModel):
