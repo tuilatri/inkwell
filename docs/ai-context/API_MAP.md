@@ -12,6 +12,7 @@
 | POST | `/api/auth/logout` | Access cookie + CSRF | — | Revoke jti rows, clear cookies |
 | POST | `/api/auth/change-password` | Access cookie + CSRF | — | Rehash password, revoke all sessions (env seed becomes void) |
 | GET | `/api/auth/me` | Access cookie | — | Current admin `{id, username}` |
+| GET | `/health` | None | — | `{"status":"ok"}` liveness probe for monitors / launcher; no auth so external pollers stop getting 404 |
 | GET | `/api/novels` | Access cookie | — | `[{id, title, kind}]` — names only, no covers; `kind` = `novel` or `manga` (from `source_dir` prefix) |
 | GET | `/api/novels/{id}/variants` | Access cookie | — | `[{id, lang}]` — `vi` / `en` |
 | GET | `/api/variants/{id}/chapters` | Access cookie | — | `[{id, number, title, visited, kind, page_count}]` — active chapters, ordered; names only (no content), `visited` = `reading_state.scroll_pos > 0 or page_index is not null` |

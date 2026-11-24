@@ -12,11 +12,11 @@
 
 ## novel_reader — FastAPI + React/Vite · 3.803 lines · 97 files
 
-### `novel_reader/backend/` — 1.945 lines
+### `novel_reader/backend/` — 1.953 lines
 
 | File | Lines | Role |
 |---|---:|---|
-| `novel_reader/backend/` | 1.945 | Auth (JWT cookies + argon2), dual-root fingerprint scanner (text + manga), pages/media APIs, Postgres FTS, Alembic migrations (0001–0006), pytest suite. |
+| `novel_reader/backend/` | 1.953 | Auth (JWT cookies + argon2), dual-root fingerprint scanner (text + manga), pages/media APIs, `/health` liveness probe, Postgres FTS, Alembic migrations (0001–0006), pytest suite. |
 
 ### `novel_reader/frontend/src/` — 1.964 lines
 
@@ -28,7 +28,7 @@
 ## Pinned file sizes (doc-truth `lines:` claims — all git-listed files, non-empty lines)
 | File | Non-empty lines |
 |---|---:|
-| `novel_reader/backend/app/main.py` | 68 |
+| `novel_reader/backend/app/main.py` | 72 |
 | `novel_reader/frontend/src/pages/Reader.tsx` | 187 |
 | `.opencode/skills/novel-reader-backend-conventions/SKILL.md` | 14 |
 | `docs/ai-context/FRONTEND_MAP.md` | 32 |

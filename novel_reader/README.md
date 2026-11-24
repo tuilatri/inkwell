@@ -38,10 +38,12 @@ novel_reader/
 
 Double-click **`start.bat`** in this folder (Windows Explorer) — it always executes via `cmd.exe`, so VS Code never opens it as a text file. `start.py` remains the logic/CLI entry (`python start.py --no-browser`). The launcher:
 - checks ports `8000`/`5173` and required files first (clear error message, no traceback);
-- starts the backend in its own console using `backend/.venv/Scripts/python.exe -m uvicorn ... --reload`;
+- starts the backend in its own console using `backend/.venv/Scripts/python.exe -m uvicorn ...` (**no** `--reload` — on Windows its reloader sends console-wide Ctrl+C and can close the tab);
 - starts the frontend in its own console using `npm run dev`;
+- mirrors both consoles to `logs/backend.log` and `logs/frontend.log` for post-mortem;
 - opens `http://localhost:5173` in your browser (use `python start.py --no-browser` to skip);
-- **stays open as long as you need it** (no time limit) and stops both servers when you close the launcher window or press Ctrl+C there; if a server really fails, the launcher tells you which console to check.
+- **restarts a server that dies unexpectedly** (max 5 times) instead of shutting everything down; only closing the launcher window / Ctrl+C stops both, with cleanup from the main thread (no orphans);
+- `start.bat` **always pauses** before closing so an error message is never lost. For hot reload during development, run the uvicorn command manually (below) with `--reload`.
 
 You can still run the two commands manually (below) — the launcher is only a convenience wrapper.
 

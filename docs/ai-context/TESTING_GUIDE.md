@@ -2,7 +2,7 @@
 
 ## 1. Current test counts (doc-truth parses this table — NEVER guess)
 
-| **40** | **collected pytest items** (backend, project venv) |
+| **41** | **collected pytest items** (backend, project venv) |
 |---|---|
 | **28** | **Vitest tests** (frontend components) |
 | **2** | **Playwright E2E tests** (full browser flow) |

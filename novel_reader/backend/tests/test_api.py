@@ -12,6 +12,12 @@ def get_root():
     return get_settings().novel_root
 
 
+async def test_health_is_unauthenticated(client):
+    response = await client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 async def test_security_headers(client):
     response = await client.get("/api/novels")
     assert response.status_code == 401

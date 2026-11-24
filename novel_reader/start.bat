@@ -12,8 +12,8 @@ if not exist "%PY%" (
 )
 
 "%PY%" "%~dp0start.py" --no-browser %*
-if %errorlevel% neq 0 (
-  echo.
-  echo Launcher exited with code %errorlevel%. See messages above.
-  pause
-)
+set "RC=%errorlevel%"
+echo.
+echo Inkwell launcher exited with code %RC%. See logs in "%~dp0logs".
+echo Press any key to close this window.
+pause
