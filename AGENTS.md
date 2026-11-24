@@ -102,7 +102,7 @@ For every **non-trivial** request, follow this loop in order:
 
 | | |
 |---|---|
-| Apps | `comix_downloader/` — Python scraper, 10 files / 2.880 lines · `novel_reader/backend/` — FastAPI, 38 files / 1.945 lines · `novel_reader/frontend/src/` — React/Vite/TS, 60 files / 1.964 lines |
+| Apps | `comix_downloader/` — Python scraper, 10 files / 2.880 lines · `novel_reader/backend/` — FastAPI, 38 files / 1.953 lines · `novel_reader/frontend/src/` — React/Vite/TS, 60 files / 1.964 lines |
 | Backend entry | `cd novel_reader/backend && .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000` |
 | Frontend entry | `cd novel_reader/frontend && npm run dev` (`:5173`, `/api` proxied to `:8000`) |
 | DB | PostgreSQL 18 — two empty-at-setup DBs (TEST used by default, PRODUCTION only on request); Alembic `0001_initial` … `0006_manga_clean_title` (6 revisions); tables created on both |

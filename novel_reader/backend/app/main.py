@@ -66,6 +66,11 @@ def create_app() -> FastAPI:
             response.headers["Cache-Control"] = "no-store, private"
         return response
 
+    @app.get("/health", tags=["meta"])
+    async def health() -> dict[str, str]:
+        """Unauthenticated liveness probe for monitors and the launcher."""
+        return {"status": "ok"}
+
     for router in (
         auth_api.router,
         novels_api.router,

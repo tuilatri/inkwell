@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """One-click launcher for Inkwell Novel Reader (backend + frontend).
 
-Double-click this file on Windows, or run `python start.py` from anywhere.
-Both servers start in their own console window; closing this launcher (or
-pressing Ctrl+C here) stops both. Secrets stay in the untracked .env file.
+Double-click start.bat on Windows, or run `python start.py` from anywhere.
+Both servers start in their own console; closing this launcher (or pressing
+Ctrl+C here) stops both. Child output is also mirrored to logs/*.log.
+Secrets stay in the untracked .env file.
 """
 from __future__ import annotations
 
@@ -13,6 +14,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import threading
 import time
 import webbrowser
 from pathlib import Path
@@ -24,10 +26,15 @@ if os.name == "nt":  # Windows: react to closing the launcher window
 ROOT = Path(__file__).resolve().parent
 BACKEND = ROOT / "backend"
 FRONTEND = ROOT / "frontend"
+LOGS = ROOT / "logs"
 VENV_PY = BACKEND / ".venv" / "Scripts" / ("python.exe" if os.name == "nt" else "python")
 FRONT_URL = "http://localhost:5173"
 BACK_URL = "http://localhost:8000"
 PORTS = ((8000, "backend"), (5173, "frontend"))
+MAX_RESTARTS = 5
+
+CLOSE_EVENT = threading.Event()
+_CONSOLE_HANDLER = None  # keep the ctypes callback alive for the process lifetime
 
 
 def port_busy(port: int) -> bool:
@@ -58,13 +65,47 @@ def stop(proc: subprocess.Popen | None) -> None:
             proc.terminate()
 
 
-def spawn(cmd: list[str], cwd: Path) -> subprocess.Popen:
-    kwargs = {"cwd": str(cwd), "env": os.environ.copy()}
+def spawn(cmd: list[str], cwd: Path, log: Path) -> subprocess.Popen:
+    """Start one child in its own console with output mirrored to a log file."""
+    LOGS.mkdir(exist_ok=True)
+    handle = log.open("a", encoding="utf-8", buffering=1)
+    kwargs = {"cwd": str(cwd), "env": os.environ.copy(),
+              "stdout": handle, "stderr": subprocess.STDOUT}
     if os.name == "nt":
-        kwargs["creationflags"] = subprocess.CREATE_NEW_CONSOLE
+        kwargs["creationflags"] = subprocess.CREATE_NEW_CONSOLE | subprocess.CREATE_NEW_PROCESS_GROUP
     else:
         kwargs["start_new_session"] = True
-    return subprocess.Popen(cmd, **kwargs)
+    try:
+        return subprocess.Popen(cmd, **kwargs)
+    finally:
+        handle.close()  # the child owns a duplicated handle
+
+
+def make_worker(label: str, cmd: list[str], cwd: Path) -> dict:
+    log = LOGS / f"{label}.log"
+    return {"label": label, "cmd": cmd, "cwd": cwd, "log": log,
+            "proc": spawn(cmd, cwd, log), "restarts": 0}
+
+
+def install_close_handler() -> None:
+    """Flag window close / logoff only — never call subprocess from this thread."""
+    global _CONSOLE_HANDLER
+    if os.name != "nt":
+        return
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.DWORD)
+    def on_console_event(event: int) -> bool:
+        # 0=Ctrl+C, 1=Ctrl+Break, 2=window close, 5=logoff/shutdown.
+        # Windows' default handler terminates the process immediately on these
+        # (0xC000013A) and skips `finally`, orphaning the children. Swallow them
+        # here and let the main loop exit cleanly with cleanup.
+        if event in (0, 1, 2, 5):
+            CLOSE_EVENT.set()
+            return True
+        return False
+
+    _CONSOLE_HANDLER = on_console_event
+    ctypes.windll.kernel32.SetConsoleCtrlHandler(_CONSOLE_HANDLER, True)
 
 
 def main() -> int:
@@ -85,47 +126,56 @@ def main() -> int:
         hold_window()
         return 1
 
-    processes: list[subprocess.Popen] = []
+    workers: list[dict] = []
     try:
-        backend = spawn([str(VENV_PY), "-m", "uvicorn", "app.main:app", "--reload",
-                         "--host", "127.0.0.1", "--port", "8000"], BACKEND)
-        processes.append(backend)
+        # No --reload: on Windows uvicorn's reloader sends CTRL_C_EVENT to the
+        # whole console and restarts the app, which can close the child's tab.
+        workers.append(make_worker(
+            "backend",
+            [str(VENV_PY), "-m", "uvicorn", "app.main:app",
+             "--host", "127.0.0.1", "--port", "8000"],
+            BACKEND,
+        ))
         npm = "npm.cmd" if os.name == "nt" else "npm"
-        frontend = spawn([shutil.which(npm) or npm, "run", "dev"], FRONTEND)
-        processes.append(frontend)
-        if os.name == "nt":
-            @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.DWORD)
-            def on_console_event(event: int) -> bool:
-                # 0=Ctrl+C, 1=Ctrl+Break, 2=close window, 5=logoff/shutdown
-                if event in (0, 1, 2, 5):
-                    for proc in processes:
-                        stop(proc)
-                return False  # let Windows complete the close
-
-            ctypes.windll.kernel32.SetConsoleCtrlHandler(on_console_event, True)
+        workers.append(make_worker(
+            "frontend", [shutil.which(npm) or npm, "run", "dev"], FRONTEND
+        ))
+        install_close_handler()
 
         print(f"Inkwell Novel Reader starting...\n  frontend: {FRONT_URL}\n  backend:  {BACK_URL}")
+        print(f"Logs: {LOGS / 'backend.log'} , {LOGS / 'frontend.log'}")
         print("Close this window (or press Ctrl+C) to stop both servers.")
         if not args.no_browser:
             time.sleep(1)
             webbrowser.open(FRONT_URL)
 
-        # Stay alive until the user closes this window / presses Ctrl+C, or a
-        # server actually dies. No time limit - this is a user-facing launcher,
-        # not a smoke test.
-        while all(proc.poll() is None for proc in processes):
-            time.sleep(0.5)
-        for proc, label in zip(processes, ("backend", "frontend")):
-            if proc.poll() is not None:
-                print(f"[ERROR] {label} exited early with code {proc.returncode} - check its console window.")
-        hold_window()
-        return 1
+        # Supervise: a crashed child is restarted; only a real close request or
+        # exhausting the restart budget ends the launcher. No silent timeouts.
+        while not CLOSE_EVENT.is_set():
+            for worker in workers:
+                proc = worker["proc"]
+                if proc.poll() is None or CLOSE_EVENT.is_set():
+                    continue
+                label, log = worker["label"], worker["log"]
+                if worker["restarts"] >= MAX_RESTARTS:
+                    print(f"[ERROR] {label} keeps exiting (code {proc.returncode}) after "
+                          f"{MAX_RESTARTS} restarts - see {log}")
+                    return 1
+                worker["restarts"] += 1
+                print(f"[WARN] {label} exited with code {proc.returncode} - "
+                      f"restarting ({worker['restarts']}/{MAX_RESTARTS}), log: {log}")
+                CLOSE_EVENT.wait(2)
+                if CLOSE_EVENT.is_set():
+                    break
+                worker["proc"] = spawn(worker["cmd"], worker["cwd"], log)
+            CLOSE_EVENT.wait(0.5)
+        return 0
     except KeyboardInterrupt:
         print("\nStopping both servers...")
         return 0
     finally:
-        for proc in processes:
-            stop(proc)
+        for worker in workers:
+            stop(worker["proc"])
 
 
 if __name__ == "__main__":

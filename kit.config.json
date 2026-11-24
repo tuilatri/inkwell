@@ -16,7 +16,7 @@
       "path": "novel_reader/backend",
       "srcPath": "novel_reader/backend/app",
       "verify": ".venv/Scripts/python.exe -m pytest -q",
-      "expectedTests": 40
+      "expectedTests": 41
     },
     {
       "id": "frontend",
