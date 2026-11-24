@@ -41,4 +41,7 @@ Adding `aria-label="Hiện mật khẩu"` made `getByLabel('Mật khẩu')` matc
 ## 13. Docker needs host-reachable DB URLs and time on Windows bind mounts
 `localhost` in `.env` points at the container, not the host → backend startup hung on DB connection. Fix: gitignored `.env.docker` rewriting DB URLs to `host.docker.internal` (compose loads it after `.env`). Also the first scan over a `drafts/Novel/` bind mount on Docker Desktop took ~90 s — let startup finish before smoke-testing. PowerShell `curl --data-raw $json` mangles JSON; write the body to a file and use `--data-binary @file`.
 
-## 14.
+## 14. Smoke-test deadline leaked into a user-facing launcher
+`start.py` had `deadline = time.time() + 180` (a guard for background smoke tests). Shipped as-is, the launcher silently exited after 3 min and its `finally` killed both dev servers — the owner saw consoles close for no reason. Fix: user-facing launchers wait until the user closes them / Ctrl+C, and only exit early on a real child failure, with a visible error + pause. Keep test-only timeouts in tests, not in shipped entry points.
+
+## 15.

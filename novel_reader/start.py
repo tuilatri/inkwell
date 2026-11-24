@@ -76,7 +76,7 @@ def main() -> int:
     if not VENV_PY.is_file():
         problems.append(f"Missing backend venv: {VENV_PY}")
     if not (FRONTEND / "node_modules").is_dir():
-        problems.append(f"Frontend deps missing — run: npm ci  (in {FRONTEND})")
+        problems.append(f"Frontend deps missing - run: npm ci  (in {FRONTEND})")
     for port, label in PORTS:
         if port_busy(port):
             problems.append(f"Port {port} already in use ({label}). Close the existing server first.")
@@ -110,13 +110,16 @@ def main() -> int:
             time.sleep(1)
             webbrowser.open(FRONT_URL)
 
-        deadline = time.time() + 180
-        while all(proc.poll() is None for proc in processes) and time.time() < deadline:
+        # Stay alive until the user closes this window / presses Ctrl+C, or a
+        # server actually dies. No time limit - this is a user-facing launcher,
+        # not a smoke test.
+        while all(proc.poll() is None for proc in processes):
             time.sleep(0.5)
         for proc, label in zip(processes, ("backend", "frontend")):
             if proc.poll() is not None:
-                print(f"{label} exited early with code {proc.returncode} — check its window.")
-        return 0
+                print(f"[ERROR] {label} exited early with code {proc.returncode} - check its console window.")
+        hold_window()
+        return 1
     except KeyboardInterrupt:
         print("\nStopping both servers...")
         return 0
